@@ -1,0 +1,18 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="../MagatzapiV2/MagatzapiV2/MagatzapiV2.csproj">
+    <BuildDependency Project="../SharedContracts/SharedContracts.csproj" />
+  </Project>
+  <Project Path="../SharedContracts/SharedContracts.csproj" Id="891e93cf-6162-458e-a84d-836ae41eacd6" />
+  <Project Path="PaletixDesktop.csproj">
+    <BuildDependency Project="../SharedContracts/SharedContracts.csproj" />
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
+</Solution>

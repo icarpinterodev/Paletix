@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Pages.ProductsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="ProductsView_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="ProductCellBorderStyle" TargetType="Border">
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="BorderBrush" Value="{StaticResource AppStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
+        </Style>
+
+        <Style x:Key="ProductTableItemStyle" TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="74" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+
+        <Style x:Key="ProductSelectionCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource AppPrimaryTextBrush}" />
+            <Setter Property="Background" Value="{StaticResource AppSurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource AppPrimaryTextBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <DataTemplate x:Key="ProductTableRowTemplate">
+            <Grid
+                MinWidth="2222"
+                MinHeight="74"
+                BorderBrush="{StaticResource AppStrokeBrush}"
+                BorderThickness="0,0,0,1"
+                Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="52" />
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition Width="240" />
+                    <ColumnDefinition Width="260" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="95" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="95" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource ProductCellBorderStyle}">
+                    <CheckBox
+                        Click="ProductCheckBox_Click"
+                        IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                        Style="{StaticResource ProductSelectionCheckBoxStyle}"
+                        Tag="{Binding}" />
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding IdText}" />
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Referencia}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Nom}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="4" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding Descripcio}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="5" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding IdTipus}" />
+                </Border>
+                <Border Grid.Column="6" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding VolumMlText}" />
+                </Border>
+                <Border Grid.Column="7" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding IdProveidor}" />
+                </Border>
+                <Border Grid.Column="8" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding IdUbicacio}" />
+                </Border>
+                <Border Grid.Column="9" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding CaixesPerPalet}" />
+                </Border>
+                <Border Grid.Column="10" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding ImageText}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="11" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding ActiuText}" />
+                </Border>
+                <Border Grid.Column="12" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PreuVendaCaixaText}" />
+                </Border>
+                <Border Grid.Column="13" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding CostPerCaixaText}" />
+                </Border>
+                <Border Grid.Column="14" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding EstabilitatAlPalet}" />
+                </Border>
+                <Border Grid.Column="15" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PesKgText}" />
+                </Border>
+                <Border Grid.Column="16" Style="{StaticResource ProductCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding DataAfegitText}" />
+                </Border>
+                <Border Grid.Column="17" Style="{StaticResource ProductCellBorderStyle}">
+                    <StackPanel VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SyncStateText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncMessage}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="18" Padding="10">
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="6">
+                        <Button Width="34" Height="34" Padding="0" Click="EditProductButton_Click" Tag="{Binding}">
+                            <FontIcon FontSize="14" Glyph="&#xE70F;" />
+                        </Button>
+                        <Button Width="34" Height="34" Padding="0" Click="DeleteProductButton_Click" Tag="{Binding}">
+                            <FontIcon FontSize="14" Glyph="&#xE74D;" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ProductGridItemTemplate">
+            <Border
+                Width="320"
+                MinHeight="252"
+                Margin="0,0,12,12"
+                Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}}"
+                Style="{StaticResource ShellCardBorderStyle}">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="112" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Border
+                        Background="{StaticResource AppAccentSoftBrush}"
+                        BorderBrush="{StaticResource AppStrokeBrush}"
+                        BorderThickness="0,0,0,1"
+                        CornerRadius="8,8,0,0">
+                        <Grid>
+                            <FontIcon
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="42"
+                                Foreground="{StaticResource AppPrimaryTextBrush}"
+                                Glyph="{Binding ImageGlyph}" />
+                            <TextBlock
+                                Margin="12"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                FontSize="12"
+                                Foreground="{StaticResource AppSecondaryTextBrush}"
+                                Text="{Binding ImageText}" />
+                        </Grid>
+                    </Border>
+                    <CheckBox
+                        Margin="8"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Click="ProductCheckBox_Click"
+                        IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                        Tag="{Binding}" />
+                    <StackPanel Grid.Row="1" Padding="14,0,14,14" Spacing="7">
+                        <TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding Referencia}" />
+                        <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Nom}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding Descripcio}" TextTrimming="CharacterEllipsis" />
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PreuVendaCaixaText}" />
+                            <TextBlock Grid.Column="1" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding ActiuText}" />
+                        </Grid>
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding DataAfegitText}" />
+                            <TextBlock Grid.Column="1" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncStateText}" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid ColumnSpacing="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Padding="24,18,24,24" RowSpacing="14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="360" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="4">
+                    <TextBlock FontSize="30" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Productes" />
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Cataleg basat en el model real de la taula productes." TextWrapping="Wrap" />
+                </StackPanel>
+                <TextBox Grid.Column="1" VerticalAlignment="Bottom" PlaceholderText="Cercar id, referencia, nom o descripcio" Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Total" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding TotalCount}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Filtrats" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding FilteredCount}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Actius" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ActiveCount}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Sense imatge" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding MissingImageCount}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="2" RowSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="2">
+                        <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Cataleg" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedCountText}" />
+                </Grid>
+
+                <Border Grid.Row="1" Style="{StaticResource ShellCardBorderStyle}">
+                    <Grid>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Visibility="{Binding IsTableView, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid MinWidth="2222">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid MinWidth="2222" Background="{StaticResource AppSurfaceAltBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="240" />
+                                        <ColumnDefinition Width="260" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="95" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="95" />
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1">
+                                        <CheckBox
+                                            x:Name="SelectVisibleProductsCheckBox"
+                                            Click="ProductsHeaderCheckBox_Click"
+                                            IsThreeState="True"
+                                            Style="{StaticResource ProductSelectionCheckBoxStyle}" />
+                                    </Border>
+                                    <Border Grid.Column="1" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="ID" /></Border>
+                                    <Border Grid.Column="2" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Referència" /></Border>
+                                    <Border Grid.Column="3" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Nom" /></Border>
+                                    <Border Grid.Column="4" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Descripció" /></Border>
+                                    <Border Grid.Column="5" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Tipus" /></Border>
+                                    <Border Grid.Column="6" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Volum (ml)" /></Border>
+                                    <Border Grid.Column="7" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Proveïdor" /></Border>
+                                    <Border Grid.Column="8" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Ubicació" /></Border>
+                                    <Border Grid.Column="9" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Caixes/palet" /></Border>
+                                    <Border Grid.Column="10" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Imatge" /></Border>
+                                    <Border Grid.Column="11" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Estat" /></Border>
+                                    <Border Grid.Column="12" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Preu venda" /></Border>
+                                    <Border Grid.Column="13" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Cost caixa" /></Border>
+                                    <Border Grid.Column="14" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Estabilitat" /></Border>
+                                    <Border Grid.Column="15" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Pes (kg)" /></Border>
+                                    <Border Grid.Column="16" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Data alta" /></Border>
+                                    <Border Grid.Column="17" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Sincronitzacio" /></Border>
+                                    <Border Grid.Column="18" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,0,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Accions" /></Border>
+                                </Grid>
+                                <ListView
+                                    x:Name="ProductsTable"
+                                    Grid.Row="1"
+                                    MinWidth="2222"
+                                    Background="Transparent"
+                                    ContextRequested="ProductsTable_ContextRequested"
+                                    IsMultiSelectCheckBoxEnabled="False"
+                                    ItemContainerStyle="{StaticResource ProductTableItemStyle}"
+                                    ItemTemplate="{StaticResource ProductTableRowTemplate}"
+                                    ItemsSource="{Binding FilteredProducts}"
+                                    SelectionChanged="ProductsSelectionChanged"
+                                    SelectionMode="Multiple" />
+                            </Grid>
+                        </ScrollViewer>
+
+                        <GridView
+                            x:Name="ProductsGrid"
+                            Padding="14"
+                            Background="Transparent"
+                            IsMultiSelectCheckBoxEnabled="False"
+                            ItemTemplate="{StaticResource ProductGridItemTemplate}"
+                            ItemsSource="{Binding FilteredProducts}"
+                            SelectionChanged="ProductsSelectionChanged"
+                            SelectionMode="Multiple"
+                            Visibility="{Binding IsGridView, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Border
+            Grid.Column="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="#4D000000"
+            IsHitTestVisible="True"
+            Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+        <Border
+            Grid.Column="1"
+            Width="520"
+            Padding="24"
+            Background="{StaticResource AppSurfaceBrush}"
+            BorderBrush="{StaticResource AppStrokeBrush}"
+            BorderThickness="1,0,0,0"
+            Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PanelTitle}" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding PanelSubtitle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Visibility="{Binding IsEditingMultiple, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Width="34" Height="34" Padding="0" Click="PreviousEditButton_Click"><FontIcon Glyph="&#xE72B;" /></Button>
+                        <Button Width="34" Height="34" Padding="0" Click="NextEditButton_Click"><FontIcon Glyph="&#xE72A;" /></Button>
+                    </StackPanel>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Spacing="12">
+                        <Border
+                            Padding="12"
+                            Background="{StaticResource AppDangerBrush}"
+                            CornerRadius="6"
+                            Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock
+                                Foreground="White"
+                                Text="{Binding ValidationMessage}"
+                                TextWrapping="WrapWholeWords" />
+                        </Border>
+                        <TextBox Header="Referència" PlaceholderText="SKU-0001" Text="{Binding DraftReferencia, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Nom" PlaceholderText="Nom del producte" Text="{Binding DraftNom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Descripció" PlaceholderText="Descripcio breu del producte" Text="{Binding DraftDescripcio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <ComboBox
+                            Header="Tipus de producte"
+                            DisplayMemberPath="DisplayText"
+                            ItemsSource="{Binding ProductTypeOptions}"
+                            PlaceholderText="Selecciona tipus"
+                            SelectedValue="{Binding DraftIdTipus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedValuePath="Value" />
+                        <NumberBox
+                            Header="Volum (ml)"
+                            LargeChange="100"
+                            PlaceholderText="500"
+                            SmallChange="10"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{Binding DraftVolumMlValue, Mode=TwoWay}" />
+                        <ComboBox
+                            Header="Proveïdor"
+                            DisplayMemberPath="DisplayText"
+                            ItemsSource="{Binding SupplierOptions}"
+                            PlaceholderText="Selecciona proveidor"
+                            SelectedValue="{Binding DraftIdProveidor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedValuePath="Value" />
+                        <ComboBox
+                            Header="Ubicació"
+                            DisplayMemberPath="DisplayText"
+                            ItemsSource="{Binding LocationOptions}"
+                            PlaceholderText="Selecciona ubicacio"
+                            SelectedValue="{Binding DraftIdUbicacio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedValuePath="Value" />
+                        <NumberBox
+                            Header="Caixes per palet"
+                            LargeChange="100"
+                            Minimum="1"
+                            PlaceholderText="80"
+                            SmallChange="10"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{Binding DraftCaixesPerPaletValue, Mode=TwoWay}" />
+                        <TextBox Header="URL de la imatge" PlaceholderText="https://domini.cat/imatge.jpg" Text="{Binding DraftImatgeUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Border
+                            Height="140"
+                            Background="{StaticResource AppAccentSoftBrush}"
+                            BorderBrush="{StaticResource AppStrokeBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Visibility="{Binding HasImagePreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Image
+                                Source="{Binding ImagePreviewUrl}"
+                                Stretch="UniformToFill" />
+                        </Border>
+                        <ComboBox
+                            Header="Estat"
+                            DisplayMemberPath="DisplayText"
+                            ItemsSource="{Binding ActiveOptions}"
+                            PlaceholderText="Selecciona estat"
+                            SelectedValue="{Binding DraftActiu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedValuePath="Value" />
+                        <NumberBox
+                            Header="Preu de venda per caixa"
+                            LargeChange="10"
+                            Minimum="0"
+                            PlaceholderText="12,50"
+                            SmallChange="0.5"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{Binding DraftPreuVendaCaixaValue, Mode=TwoWay}" />
+                        <NumberBox
+                            Header="Cost per caixa"
+                            LargeChange="10"
+                            Minimum="0"
+                            PlaceholderText="8,75"
+                            SmallChange="0.5"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{Binding DraftCostPerCaixaValue, Mode=TwoWay}" />
+                        <NumberBox
+                            Header="Estabilitat al palet"
+                            LargeChange="10"
+                            Minimum="0"
+                            PlaceholderText="4"
+                            SmallChange="1"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{Binding DraftEstabilitatAlPaletValue, Mode=TwoWay}" />
+                        <NumberBox
+                            Header="Pes (kg)"
+                            LargeChange="10"
+                            Minimum="0"
+                            PlaceholderText="1,25"
+                            SmallChange="0.5"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{Binding DraftPesKgValue, Mode=TwoWay}" />
+                    </StackPanel>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
+                    <Button Click="CancelCreateButton_Click" Content="Cancelar" />
+                    <Button Background="{StaticResource AppAccentBrush}" Click="SaveCreateButton_Click" Content="Guardar" Foreground="White" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

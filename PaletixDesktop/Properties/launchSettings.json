@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "PaletixDesktop (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "PaletixDesktop (Unpackaged)": {
+      "commandName": "Project"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    }
+  }
+}

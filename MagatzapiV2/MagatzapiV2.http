@@ -1,0 +1,20 @@
+@MagatzapiV2_HostAddress = https://localhost:7137
+
+GET {{MagatzapiV2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+POST {{MagatzapiV2_HostAddress}}/api/rols
+Content-Type: application/json
+
+{
+  //RolsCreateDto
+}
+
+###
+
+GET {{MagatzapiV2_HostAddress}}/api/rols
+X-API-Key: clau-api-complexa-564
+
+###

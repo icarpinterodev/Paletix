@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Pages.LocationsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="LocationsView_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="CellBorderStyle" TargetType="Border"><Setter Property="Padding" Value="12,10" /><Setter Property="BorderBrush" Value="{StaticResource AppStrokeBrush}" /><Setter Property="BorderThickness" Value="0,0,1,0" /></Style>
+        <Style x:Key="TableItemStyle" TargetType="ListViewItem"><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinHeight" Value="66" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /></Style>
+        <Style x:Key="SelectionCheckBoxStyle" TargetType="CheckBox"><Setter Property="Width" Value="30" /><Setter Property="Height" Value="30" /><Setter Property="MinWidth" Value="30" /><Setter Property="Padding" Value="0" /><Setter Property="HorizontalAlignment" Value="Center" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+        <DataTemplate x:Key="TableRowTemplate">
+            <Grid MinWidth="1020" MinHeight="66" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,0,1" Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="52" /><ColumnDefinition Width="70" /><ColumnDefinition Width="200" /><ColumnDefinition Width="100" /><ColumnDefinition Width="110" /><ColumnDefinition Width="140" /><ColumnDefinition Width="100" /><ColumnDefinition Width="110" /><ColumnDefinition Width="180" /><ColumnDefinition Width="56" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CellBorderStyle}"><CheckBox Click="RecordCheckBox_Click" IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource SelectionCheckBoxStyle}" Tag="{Binding}" /></Border>
+                <Border Grid.Column="1" Style="{StaticResource CellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding IdText}" /></Border>
+                <Border Grid.Column="2" Style="{StaticResource CellBorderStyle}"><TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding CodiText}" TextTrimming="CharacterEllipsis" /></Border>
+                <Border Grid.Column="3" Style="{StaticResource CellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Zona}" /></Border>
+                <Border Grid.Column="4" Style="{StaticResource CellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Passadis}" /></Border>
+                <Border Grid.Column="5" Style="{StaticResource CellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding BlocEstanteria}" /></Border>
+                <Border Grid.Column="6" Style="{StaticResource CellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Fila}" /></Border>
+                <Border Grid.Column="7" Style="{StaticResource CellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Columna}" /></Border>
+                <Border Grid.Column="8" Style="{StaticResource CellBorderStyle}"><StackPanel VerticalAlignment="Center" Spacing="2"><TextBlock Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SyncStateText}" /><TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncMessage}" TextTrimming="CharacterEllipsis" /></StackPanel></Border>
+                <Border Grid.Column="9" Padding="10"><Button Width="34" Height="34" Padding="0" Click="EditButton_Click" Tag="{Binding}"><FontIcon FontSize="14" Glyph="&#xE70F;" /></Button></Border>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="GridItemTemplate">
+            <Border Width="260" MinHeight="170" Margin="0,0,12,12" Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}}" Style="{StaticResource ShellCardBorderStyle}">
+                <StackPanel Padding="14" Spacing="8">
+                    <Grid><TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding IdText}" /><CheckBox HorizontalAlignment="Right" Click="RecordCheckBox_Click" IsChecked="{Binding IsSelected, Mode=TwoWay}" Tag="{Binding}" /></Grid>
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding CodiText}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncStateText}" />
+                    <TextBlock Foreground="{StaticResource AppPrimaryTextBrush}"><Run Text="Z " /><Run Text="{Binding Zona}" /><Run Text=" · P " /><Run Text="{Binding Passadis}" /><Run Text=" · B " /><Run Text="{Binding BlocEstanteria}" /></TextBlock>
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}"><Run Text="Fila " /><Run Text="{Binding Fila}" /><Run Text=" · Columna " /><Run Text="{Binding Columna}" /></TextBlock>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="DesignerCellTemplate">
+            <Button Width="108" Height="62" Margin="0,0,8,8" Padding="8" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Click="DesignerCell_Click" ContextRequested="DesignerCell_ContextRequested" Tag="{Binding}">
+                <Grid>
+                    <StackPanel Spacing="2">
+                        <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding CodeText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="11" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StateText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="11" Foreground="{StaticResource AppSecondaryTextBrush}">
+                            <Run Text="F" /><Run Text="{Binding Fila}" /><Run Text=" · C" /><Run Text="{Binding Columna}" />
+                        </TextBlock>
+                    </StackPanel>
+                    <FontIcon HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="12" Glyph="&#xE73E;" Foreground="{StaticResource AppAccentBrush}" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </Grid>
+            </Button>
+        </DataTemplate>
+        <DataTemplate x:Key="DesignerRowTemplate">
+            <Grid ColumnSpacing="10" Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="58" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding Title}" />
+                <ItemsControl Grid.Column="1" ItemTemplate="{StaticResource DesignerCellTemplate}" ItemsSource="{Binding Cells}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="DesignerBlockTemplate">
+            <Border MinWidth="360" Margin="0,0,14,14" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Title}" />
+                    <ItemsControl ItemTemplate="{StaticResource DesignerRowTemplate}" ItemsSource="{Binding Rows}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="DesignerZoneTemplate">
+            <StackPanel Spacing="10" Margin="0,0,0,18">
+                <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Title}" />
+                <ItemsControl ItemTemplate="{StaticResource DesignerBlockTemplate}" ItemsSource="{Binding Blocks}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid ColumnSpacing="0">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+        <Grid Padding="24,18,24,24" RowSpacing="14">
+            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="420" /></Grid.ColumnDefinitions>
+                <StackPanel Spacing="4"><TextBlock FontSize="30" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Ubicacions" /><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Zones, passadissos, blocs, files i columnes." /></StackPanel>
+                <Button Grid.Column="1" VerticalAlignment="Bottom" Click="OpenGeneratorButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8B5;" />
+                        <TextBlock Text="Generar ubicacions" />
+                    </StackPanel>
+                </Button>
+                <TextBox Grid.Column="2" VerticalAlignment="Bottom" PlaceholderText="Cercar id, codi, zona o passadis" Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+            <Grid Grid.Row="1" ColumnSpacing="12">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <Border Padding="14" Style="{StaticResource ShellCardBorderStyle}"><StackPanel Spacing="4"><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Total" /><TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding TotalCount}" /></StackPanel></Border>
+                <Border Grid.Column="1" Padding="14" Style="{StaticResource ShellCardBorderStyle}"><StackPanel Spacing="4"><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Filtrades" /><TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding FilteredCount}" /></StackPanel></Border>
+                <Border Grid.Column="2" Padding="14" Style="{StaticResource ShellCardBorderStyle}"><StackPanel Spacing="4"><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Zones" /><TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ZonesCount}" /></StackPanel></Border>
+                <Border Grid.Column="3" Padding="14" Style="{StaticResource ShellCardBorderStyle}"><StackPanel Spacing="4"><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Pendents" /><TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PendingCount}" /></StackPanel></Border>
+            </Grid>
+            <Grid Grid.Row="2" RowSpacing="10">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel Spacing="2"><TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Mapa logic" /><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" /></StackPanel><StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Spacing="8" Visibility="{Binding IsGeneratingLocations, Converter={StaticResource BoolToVisibilityConverter}}"><ProgressRing Width="22" Height="22" IsActive="True" Background="LightGray"/><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding GenerationProgressText}" /></StackPanel><TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedCountText}" /></Grid>
+                <Border Grid.Row="1" Style="{StaticResource ShellCardBorderStyle}">
+                    <Grid>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Visibility="{Binding IsTableView, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid MinWidth="1020">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                <Grid MinWidth="1020" Background="{StaticResource AppSurfaceAltBrush}">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="52" /><ColumnDefinition Width="70" /><ColumnDefinition Width="200" /><ColumnDefinition Width="100" /><ColumnDefinition Width="110" /><ColumnDefinition Width="140" /><ColumnDefinition Width="100" /><ColumnDefinition Width="110" /><ColumnDefinition Width="180" /><ColumnDefinition Width="56" /></Grid.ColumnDefinitions>
+                                    <Border Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><CheckBox x:Name="SelectVisibleCheckBox" Click="HeaderCheckBox_Click" IsThreeState="True" Style="{StaticResource SelectionCheckBoxStyle}" /></Border>
+                                    <Border Grid.Column="1" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="ID" /></Border>
+                                    <Border Grid.Column="2" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Codi generat" /></Border>
+                                    <Border Grid.Column="3" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Zona" /></Border>
+                                    <Border Grid.Column="4" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Passadis" /></Border>
+                                    <Border Grid.Column="5" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Bloc estanteria" /></Border>
+                                    <Border Grid.Column="6" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Fila" /></Border>
+                                    <Border Grid.Column="7" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Columna" /></Border>
+                                    <Border Grid.Column="8" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Sincronitzacio" /></Border>
+                                    <Border Grid.Column="9" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,0,1" />
+                                </Grid>
+                                <ListView x:Name="RecordsTable" Grid.Row="1" MinWidth="1020" Background="Transparent" ContextRequested="Records_ContextRequested" IsMultiSelectCheckBoxEnabled="False" ItemContainerStyle="{StaticResource TableItemStyle}" ItemTemplate="{StaticResource TableRowTemplate}" ItemsSource="{Binding FilteredRecords}" SelectionChanged="RecordsSelectionChanged" SelectionMode="Multiple" />
+                            </Grid>
+                        </ScrollViewer>
+                        <GridView x:Name="RecordsGrid" Padding="14" Background="Transparent" ContextRequested="Records_ContextRequested" IsMultiSelectCheckBoxEnabled="False" ItemTemplate="{StaticResource GridItemTemplate}" ItemsSource="{Binding FilteredRecords}" SelectionChanged="RecordsSelectionChanged" SelectionMode="Multiple" Visibility="{Binding IsGridView, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Visibility="{Binding IsDesignerView, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel MinWidth="1020" Padding="16" Spacing="16">
+                                <Border Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="2">
+                                            <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Dissenyador d'ubicacions" />
+                                            <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Selecciona una cel.la per manteniment o crea posicions buides directament des del mapa." />
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Click="OpenGeneratorButton_Click">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon Glyph="&#xE8B5;" />
+                                                <TextBlock Text="Generar" />
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemTemplate="{StaticResource DesignerZoneTemplate}" ItemsSource="{Binding DesignerZones}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+        <Border Grid.Column="0" Background="#4D000000" IsHitTestVisible="True" Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <Border Grid.Column="1" Width="480" Padding="24" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="1,0,0,0" Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid RowSpacing="16">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel Spacing="4"><TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PanelTitle}" /><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding PanelSubtitle}" /></StackPanel><StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Visibility="{Binding IsEditingMultiple, Converter={StaticResource BoolToVisibilityConverter}}"><Button Width="34" Height="34" Padding="0" Click="PreviousEditButton_Click"><FontIcon Glyph="&#xE72B;" /></Button><Button Width="34" Height="34" Padding="0" Click="NextEditButton_Click"><FontIcon Glyph="&#xE72A;" /></Button></StackPanel></Grid>
+                <ScrollViewer Grid.Row="1"><StackPanel Spacing="12">
+                    <Border Padding="12" Background="{StaticResource AppDangerBrush}" CornerRadius="6" Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}"><TextBlock Foreground="White" Text="{Binding ValidationMessage}" TextWrapping="WrapWholeWords" /></Border>
+                    <NumberBox Header="Zona" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftZonaValue, Mode=TwoWay}" />
+                    <NumberBox Header="Passadis" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftPassadisValue, Mode=TwoWay}" />
+                    <NumberBox Header="Bloc estanteria" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftBlocEstanteriaValue, Mode=TwoWay}" />
+                    <NumberBox Header="Fila" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftFilaValue, Mode=TwoWay}" />
+                    <NumberBox Header="Columna" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftColumnaValue, Mode=TwoWay}" />
+                </StackPanel></ScrollViewer>
+                <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10"><Button Click="CancelPanelButton_Click" Content="Cancelar" /><Button Background="{StaticResource AppAccentBrush}" Click="SavePanelButton_Click" Content="Guardar" Foreground="White" /></StackPanel>
+            </Grid>
+        </Border>
+        <Border Grid.Column="0" Background="#4D000000" IsHitTestVisible="True" Visibility="{Binding IsGeneratorOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <Border Grid.Column="1" Width="520" Padding="24" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="1,0,0,0" Visibility="{Binding IsGeneratorOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid RowSpacing="16">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <StackPanel Spacing="4">
+                    <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Generar ubicacions" />
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding GeneratorSummary}" TextWrapping="WrapWholeWords" />
+                </StackPanel>
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Spacing="12">
+                        <Border Padding="12" Background="{StaticResource AppDangerBrush}" CornerRadius="6" Visibility="{Binding HasGeneratorValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}"><TextBlock Foreground="White" Text="{Binding GeneratorValidationMessage}" TextWrapping="WrapWholeWords" /></Border>
+                        <NumberBox Header="Zona" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorZonaValue, Mode=TwoWay}" />
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <NumberBox Header="Passadis inicial" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorPassadisFromValue, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="1" Header="Passadis final" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorPassadisToValue, Mode=TwoWay}" />
+                        </Grid>
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <NumberBox Header="Bloc inicial" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorBlocFromValue, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="1" Header="Bloc final" Minimum="1" PlaceholderText="2" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorBlocToValue, Mode=TwoWay}" />
+                        </Grid>
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <NumberBox Header="Fila inicial" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorFilaFromValue, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="1" Header="Fila final" Minimum="1" PlaceholderText="5" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorFilaToValue, Mode=TwoWay}" />
+                        </Grid>
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <NumberBox Header="Columna inicial" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorColumnaFromValue, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="1" Header="Columna final" Minimum="1" PlaceholderText="10" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorColumnaToValue, Mode=TwoWay}" />
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+                <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10"><Button Click="CancelGeneratorButton_Click" Content="Cancelar" /><Button Background="{StaticResource AppAccentBrush}" Click="GenerateButton_Click" Foreground="White"><StackPanel Orientation="Horizontal" Spacing="8"><ProgressRing Width="18" Height="18" IsActive="True" Background="LightGray" Visibility="{Binding IsGeneratingLocations, Converter={StaticResource BoolToVisibilityConverter}}" /><TextBlock Text="Generar" /></StackPanel></Button></StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Pages.SuppliersView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="SuppliersView_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="SupplierCellBorderStyle" TargetType="Border">
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="BorderBrush" Value="{StaticResource AppStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
+        </Style>
+
+        <Style x:Key="SupplierTableItemStyle" TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="70" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+
+        <Style x:Key="SupplierSelectionCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource AppPrimaryTextBrush}" />
+            <Setter Property="Background" Value="{StaticResource AppSurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource AppPrimaryTextBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <DataTemplate x:Key="SupplierTableRowTemplate">
+            <Grid MinWidth="1522" MinHeight="70" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,0,1" Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="52" />
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="180" />
+                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="135" />
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="280" />
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="115" />
+                    <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource SupplierCellBorderStyle}">
+                    <CheckBox Click="SupplierCheckBox_Click" IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource SupplierSelectionCheckBoxStyle}" Tag="{Binding}" />
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding IdText}" />
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding MarcaText}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding NomEmpresa}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="4" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Telefon}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="5" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding Email}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="6" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding AdrecaText}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="7" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding UrlWebText}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="8" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding IdTipusProductePrincipalText}" />
+                </Border>
+                <Border Grid.Column="9" Style="{StaticResource SupplierCellBorderStyle}">
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncStateText}" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Border Grid.Column="10" Padding="10">
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="6">
+                        <Button Width="34" Height="34" Padding="0" Click="EditSupplierButton_Click" Tag="{Binding}">
+                            <FontIcon FontSize="14" Glyph="&#xE70F;" />
+                        </Button>
+                        <Button Width="34" Height="34" Padding="0" Click="DeleteSupplierButton_Click" Tag="{Binding}">
+                            <FontIcon FontSize="14" Glyph="&#xE74D;" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SupplierGridItemTemplate">
+            <Border Width="320" MinHeight="232" Margin="0,0,12,12" Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}}" Style="{StaticResource ShellCardBorderStyle}">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="92" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Border Background="{StaticResource AppAccentSoftBrush}" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,0,1" CornerRadius="8,8,0,0">
+                        <Grid>
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="34" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Initials}" />
+                            <TextBlock Margin="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding IdTipusProductePrincipalText}" />
+                        </Grid>
+                    </Border>
+                    <CheckBox Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top" Click="SupplierCheckBox_Click" IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource SupplierSelectionCheckBoxStyle}" Tag="{Binding}" />
+                    <StackPanel Grid.Row="1" Padding="14,0,14,14" Spacing="7">
+                        <TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding MarcaText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding NomEmpresa}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Telefon}" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding Email}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding UrlWebText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncStateText}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid ColumnSpacing="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Padding="24,18,24,24" RowSpacing="14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="360" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="4">
+                    <TextBlock FontSize="30" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Proveidors" />
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Directori basat en el model real de proveidors." TextWrapping="Wrap" />
+                </StackPanel>
+                <TextBox Grid.Column="1" VerticalAlignment="Bottom" PlaceholderText="Cercar id, empresa, marca, email, web o tipus" Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Total" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding TotalCount}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Filtrats" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding FilteredCount}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Amb web" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding WithWebCount}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Pendents" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PendingCount}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="2" RowSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="2">
+                        <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Directori" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedCountText}" />
+                </Grid>
+
+                <Border Grid.Row="1" Style="{StaticResource ShellCardBorderStyle}">
+                    <Grid>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Visibility="{Binding IsTableView, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid MinWidth="1522">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid MinWidth="1522" Background="{StaticResource AppSurfaceAltBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="180" />
+                                        <ColumnDefinition Width="250" />
+                                        <ColumnDefinition Width="135" />
+                                        <ColumnDefinition Width="220" />
+                                        <ColumnDefinition Width="280" />
+                                        <ColumnDefinition Width="220" />
+                                        <ColumnDefinition Width="115" />
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1">
+                                        <CheckBox x:Name="SelectVisibleSuppliersCheckBox" Click="SuppliersHeaderCheckBox_Click" IsThreeState="True" Style="{StaticResource SupplierSelectionCheckBoxStyle}" />
+                                    </Border>
+                                    <Border Grid.Column="1" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="ID" /></Border>
+                                    <Border Grid.Column="2" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Marca matriu" /></Border>
+                                    <Border Grid.Column="3" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Empresa" /></Border>
+                                    <Border Grid.Column="4" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Telèfon" /></Border>
+                                    <Border Grid.Column="5" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Correu electrònic" /></Border>
+                                    <Border Grid.Column="6" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Adreça" /></Border>
+                                    <Border Grid.Column="7" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Enllaç a la pàgina web" /></Border>
+                                    <Border Grid.Column="8" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Tipus principal" /></Border>
+                                    <Border Grid.Column="9" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,1,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Sincronització" /></Border>
+                                    <Border Grid.Column="10" Padding="12,10" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,0,1"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Accions" /></Border>
+                                </Grid>
+                                <ListView
+                                    x:Name="SuppliersTable"
+                                    Grid.Row="1"
+                                    MinWidth="1522"
+                                    Background="Transparent"
+                                    ContextRequested="Suppliers_ContextRequested"
+                                    IsMultiSelectCheckBoxEnabled="False"
+                                    ItemContainerStyle="{StaticResource SupplierTableItemStyle}"
+                                    ItemTemplate="{StaticResource SupplierTableRowTemplate}"
+                                    ItemsSource="{Binding FilteredSuppliers}"
+                                    SelectionChanged="SuppliersSelectionChanged"
+                                    SelectionMode="Multiple" />
+                            </Grid>
+                        </ScrollViewer>
+
+                        <GridView
+                            x:Name="SuppliersGrid"
+                            Padding="14"
+                            Background="Transparent"
+                            ContextRequested="Suppliers_ContextRequested"
+                            IsMultiSelectCheckBoxEnabled="False"
+                            ItemTemplate="{StaticResource SupplierGridItemTemplate}"
+                            ItemsSource="{Binding FilteredSuppliers}"
+                            SelectionChanged="SuppliersSelectionChanged"
+                            SelectionMode="Multiple"
+                            Visibility="{Binding IsGridView, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#4D000000" IsHitTestVisible="True" Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+        <Border Grid.Column="1" Width="520" Padding="24" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="1,0,0,0" Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PanelTitle}" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding PanelSubtitle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Visibility="{Binding IsEditingMultiple, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Width="34" Height="34" Padding="0" Click="PreviousEditButton_Click"><FontIcon Glyph="&#xE72B;" /></Button>
+                        <Button Width="34" Height="34" Padding="0" Click="NextEditButton_Click"><FontIcon Glyph="&#xE72A;" /></Button>
+                    </StackPanel>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Spacing="12">
+                        <Border
+                            Padding="12"
+                            Background="{StaticResource AppDangerBrush}"
+                            CornerRadius="6"
+                            Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock
+                                Foreground="White"
+                                Text="{Binding ValidationMessage}"
+                                TextWrapping="WrapWholeWords" />
+                        </Border>
+                        <TextBox Header="Marca matriu" PlaceholderText="Grup empresarial" Text="{Binding DraftMarcaMatriu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Empresa" PlaceholderText="Nom del proveidor" Text="{Binding DraftNomEmpresa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Telèfon" PlaceholderText="+34 934 000 000" Text="{Binding DraftTelefon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Correu electrònic" PlaceholderText="compres@proveidor.cat" Text="{Binding DraftEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Adreça" PlaceholderText="Adreca fiscal o magatzem" Text="{Binding DraftAdreca, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Enllaç a la pàgina web" PlaceholderText="https://proveidor.cat" Text="{Binding DraftUrlWeb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <ComboBox
+                            Header="Tipus de producte principal"
+                            DisplayMemberPath="DisplayText"
+                            ItemsSource="{Binding ProductTypeOptions}"
+                            PlaceholderText="Selecciona tipus principal"
+                            SelectedValue="{Binding DraftIdTipusProductePrincipal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedValuePath="Value" />
+                    </StackPanel>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
+                    <Button Click="CancelPanelButton_Click" Content="Cancelar" />
+                    <Button Background="{StaticResource AppAccentBrush}" Click="SavePanelButton_Click" Content="Guardar" Foreground="White" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

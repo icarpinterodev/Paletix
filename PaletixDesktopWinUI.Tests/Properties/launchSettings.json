@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PaletixDesktopWinUI.Tests (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "PaletixDesktopWinUI.Tests (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="MagatzapiV2/MagatzapiV2.csproj" />
+  <Project Path="PaletixDesktop/PaletixDesktop.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="SharedContracts/SharedContracts.csproj" />
+</Solution>
