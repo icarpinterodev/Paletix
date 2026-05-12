@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Pages.PickingView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="PickingView_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="PickingCellBorderStyle" TargetType="Border">
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="BorderBrush" Value="{StaticResource AppStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,1,1" />
+        </Style>
+        <Style x:Key="PickingCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Padding="28,24,28,28" RowSpacing="18" ColumnSpacing="22">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="420" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="30" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Preparacio" />
+                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <TextBox
+                Grid.Column="1"
+                VerticalAlignment="Bottom"
+                PlaceholderText="Cercar comanda, producte, ubicacio o estat"
+                Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Comandes" />
+                    <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding TotalOrders}" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Linies" />
+                    <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding TotalLines}" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Preparables" />
+                    <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ReadyLines}" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="3" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Incidencies" />
+                    <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding AttentionLines}" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="4" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Sessio" />
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SessionStateText}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2" RowSpacing="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="2">
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Llista de preparacio" />
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Picking persistent amb reserva de stock i verificacio de linies." />
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Spacing="8" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ProgressRing Width="22" Height="22" IsActive="True" Background="LightGray" />
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Carregant..." />
+                </StackPanel>
+                <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedCountText}" />
+            </Grid>
+
+            <Border Grid.Row="1" Style="{StaticResource ShellCardBorderStyle}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <ListView
+                        x:Name="PickingLinesList"
+                        Background="Transparent"
+                        ItemsSource="{Binding FilteredLines}"
+                        SelectionChanged="PickingLinesSelectionChanged"
+                        SelectionMode="Multiple">
+                        <ListView.Header>
+                            <Grid MinWidth="1480" MinHeight="46" Background="{StaticResource AppSurfaceAltBrush}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="62" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="130" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource PickingCellBorderStyle}">
+                                    <CheckBox x:Name="SelectVisibleLinesCheckBox" Style="{StaticResource PickingCheckBoxStyle}" Click="HeaderCheckBox_Click" />
+                                </Border>
+                                <Border Grid.Column="1" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Comanda" /></Border>
+                                <Border Grid.Column="2" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Producte" /></Border>
+                                <Border Grid.Column="3" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Ubicacio" /></Border>
+                                <Border Grid.Column="4" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Caixes" /></Border>
+                                <Border Grid.Column="5" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Disponible" /></Border>
+                                <Border Grid.Column="6" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Reservat" /></Border>
+                                <Border Grid.Column="7" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Falta" /></Border>
+                                <Border Grid.Column="8" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Verificacio" /></Border>
+                                <Border Grid.Column="9" Style="{StaticResource PickingCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Sync" /></Border>
+                                <Border Grid.Column="10" Padding="12,10"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Comanda" /></Border>
+                            </Grid>
+                        </ListView.Header>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MinWidth="1480" MinHeight="62" Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}, ConverterParameter=0.72}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="62" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="240" />
+                                        <ColumnDefinition Width="240" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource PickingCellBorderStyle}">
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource PickingCheckBoxStyle}" Tag="{Binding}" Click="LineCheckBox_Click" />
+                                    </Border>
+                                    <Border Grid.Column="1" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding OrderId}" /></Border>
+                                    <Border Grid.Column="2" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ProductText}" TextTrimming="CharacterEllipsis" /></Border>
+                                    <Border Grid.Column="3" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding LocationText}" TextTrimming="CharacterEllipsis" /></Border>
+                                    <Border Grid.Column="4" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding RequestedText}" /></Border>
+                                    <Border Grid.Column="5" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding AvailableText}" /></Border>
+                                    <Border Grid.Column="6" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ReservedText}" /></Border>
+                                    <Border Grid.Column="7" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding MissingText}" /></Border>
+                                    <Border Grid.Column="8" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StateText}" TextTrimming="CharacterEllipsis" /></Border>
+                                    <Border Grid.Column="9" Style="{StaticResource PickingCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncStateText}" TextTrimming="CharacterEllipsis" /></Border>
+                                    <Border Grid.Column="10" Padding="12,10"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding OrderState}" TextTrimming="CharacterEllipsis" /></Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <Border
+            Grid.RowSpan="3"
+            Grid.Column="1"
+            Width="390"
+            Padding="22"
+            Background="{StaticResource AppSurfaceBrush}"
+            BorderBrush="{StaticResource AppStrokeBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Visibility="{Binding IsDetailPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="18">
+                    <StackPanel Spacing="4">
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Detall de linia" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding DetailActionMessage}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <InfoBar
+                        IsClosable="False"
+                        IsIconVisible="True"
+                        IsOpen="{Binding HasRequiredStates, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
+                        Message="{Binding StateConfigurationText}"
+                        Severity="Warning"
+                        Title="Configuracio pendent" />
+
+                    <StackPanel Spacing="10">
+                        <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Comanda" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedLine.OrderId}" />
+                        <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Producte" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedLine.ProductText}" TextWrapping="WrapWholeWords" />
+                        <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Ubicacio" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedLine.LocationText}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <Grid ColumnSpacing="10" RowSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Border Padding="12" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Demanat" />
+                                <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SelectedLine.RequestedText}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Padding="12" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Disponible" />
+                                <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SelectedLine.AvailableText}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Padding="12" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Reservat" />
+                                <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SelectedLine.ReservedText}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="1" Padding="12" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Falta" />
+                                <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SelectedLine.MissingText}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="2" Grid.ColumnSpan="2" Padding="12" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Estat" />
+                                <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding SelectedLine.StateText}" />
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedLine.SyncMessage}" TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Spacing="10">
+                        <Button HorizontalAlignment="Stretch" Background="{StaticResource AppAccentBrush}" Foreground="White" IsEnabled="{Binding CanMarkPrepared}" Click="MarkPreparedButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE73E;" />
+                                <TextBlock Text="Marcar preparat" />
+                            </StackPanel>
+                        </Button>
+                        <TextBox Header="Motiu de la incidencia" PlaceholderText="Descriu la incidencia abans de registrar-la" Text="{Binding IncidentReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="86" />
+                        <Button HorizontalAlignment="Stretch" IsEnabled="{Binding CanRegisterIncident}" Click="RegisterIncidentButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE7BA;" />
+                                <TextBlock Text="Registrar incidencia" />
+                            </StackPanel>
+                        </Button>
+                        <Button HorizontalAlignment="Stretch" IsEnabled="{Binding CanReleaseReservation}" Click="ReleaseReservationButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE72C;" />
+                                <TextBlock Text="Alliberar reserva" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

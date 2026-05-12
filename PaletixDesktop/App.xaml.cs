@@ -16,6 +16,7 @@ namespace PaletixDesktop
         public AppServices Services { get; }
 
         public static AppServices CurrentServices => ((App)Current).Services;
+        public static Window? MainWindowInstance => ((App)Current)._window;
 
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {

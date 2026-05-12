@@ -13,6 +13,8 @@ namespace PaletixDesktop.Views.Shell
 {
     public sealed partial class ShellView : UserControl
     {
+        public event EventHandler? LogoutRequested;
+
         private bool _initialized;
         private DispatcherTimer? _connectionTimer;
         private bool? _lastOnline;
@@ -183,9 +185,24 @@ namespace PaletixDesktop.Views.Shell
             ViewModel.Notifications.MarkAllRead();
         }
 
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            LogoutRequested?.Invoke(this, EventArgs.Empty);
+        }
+
         private async void PendingSyncButton_Click(object sender, RoutedEventArgs e)
         {
             await RefreshPendingPanelAsync();
+        }
+
+        private void ToggleImportPauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ImportJob.TogglePause();
+        }
+
+        private void CancelImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ImportJob.RequestCancel();
         }
 
         private async void RefreshPendingButton_Click(object sender, RoutedEventArgs e)
@@ -269,7 +286,7 @@ namespace PaletixDesktop.Views.Shell
                 }
                 else
                 {
-                    await ViewModel.Shell.RefreshSyncStatusAsync(online, online ? "API disponible" : "Mode offline");
+                    await ViewModel.Shell.RefreshSyncStatusAsync(online, online ? "Sincronitzat" : "Mode offline");
                 }
 
                 UpdateReconnectBackoff(online);
@@ -332,6 +349,18 @@ namespace PaletixDesktop.Views.Shell
             {
                 await lotsView.RefreshAsync();
             }
+            else if (ContentHost.Content is PickingView pickingView)
+            {
+                await pickingView.RefreshAsync();
+            }
+            else if (ContentHost.Content is OrdersView ordersView)
+            {
+                await ordersView.RefreshAsync();
+            }
+            else if (ContentHost.Content is AdministrationUsersView adminUsersView)
+            {
+                await adminUsersView.RefreshAsync();
+            }
 
             await ShowConnectionLostDialogAsync();
         }
@@ -374,6 +403,19 @@ namespace PaletixDesktop.Views.Shell
                 await App.CurrentServices.LocationDataService.LoadAsync();
                 await lotsView.RefreshAsync();
             }
+            else if (ContentHost.Content is PickingView pickingView)
+            {
+                await App.CurrentServices.StockDataService.LoadAsync();
+                await pickingView.RefreshAsync();
+            }
+            else if (ContentHost.Content is OrdersView ordersView)
+            {
+                await ordersView.RefreshAsync();
+            }
+            else if (ContentHost.Content is AdministrationUsersView adminUsersView)
+            {
+                await adminUsersView.RefreshAsync();
+            }
             else
             {
                 var result = await App.CurrentServices.ClientDataService.LoadAsync();
@@ -382,6 +424,7 @@ namespace PaletixDesktop.Views.Shell
                 await App.CurrentServices.StockDataService.LoadAsync();
                 await App.CurrentServices.LocationDataService.LoadAsync();
                 await App.CurrentServices.SupplierLotDataService.LoadAsync();
+                await App.CurrentServices.AdminIdentityDataService.LoadAsync();
                 await ViewModel.Shell.RefreshSyncStatusAsync(result.IsOnline, result.Message);
             }
 
@@ -459,6 +502,18 @@ namespace PaletixDesktop.Views.Shell
             {
                 await lotsView.RefreshAsync();
             }
+            else if (ContentHost.Content is PickingView pickingView)
+            {
+                await pickingView.RefreshAsync();
+            }
+            else if (ContentHost.Content is OrdersView ordersView)
+            {
+                await ordersView.RefreshAsync();
+            }
+            else if (ContentHost.Content is AdministrationUsersView adminUsersView)
+            {
+                await adminUsersView.RefreshAsync();
+            }
         }
 
         private async Task<bool> ConfirmDiscardPendingAsync(PendingSyncOperation operation)
@@ -512,6 +567,21 @@ namespace PaletixDesktop.Views.Shell
             if (ViewModel.ActiveSection?.Route == "warehouse-lots")
             {
                 return new SupplierLotsView();
+            }
+
+            if (ViewModel.ActiveSection?.Route == "operations-picking")
+            {
+                return new PickingView();
+            }
+
+            if (ViewModel.ActiveSection?.Route == "operations-orders")
+            {
+                return new OrdersView();
+            }
+
+            if (ViewModel.ActiveSection?.Route == "admin-users")
+            {
+                return new AdministrationUsersView();
             }
 
             return ViewModel.ActiveCategory?.Id switch

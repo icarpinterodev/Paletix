@@ -20,12 +20,14 @@ namespace PaletixDesktop.ViewModels
             _services = services;
             Shell = services.ShellViewModel;
             Notifications = services.NotificationService;
+            ImportJob = services.ImportJobService;
             PendingSync = services.PendingSyncService;
             _services.NavigationService.NavigationRequested += (_, route) => SelectSectionByRoute(route);
         }
 
         public ShellViewModel Shell { get; }
         public NotificationService Notifications { get; }
+        public ImportJobService ImportJob { get; }
         public PendingSyncService PendingSync { get; }
         public ObservableCollection<ShellCategory> Categories { get; } = new();
         public ObservableCollection<ShellSection> ActiveSections { get; } = new();

@@ -87,14 +87,21 @@
         </DataTemplate>
 
         <DataTemplate x:Key="LocationPickerCellTemplate">
-            <Button Width="116" Height="64" Margin="0,0,8,8" Padding="8" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Click="LocationPickerCell_Click" Tag="{Binding}">
-                <StackPanel Spacing="2">
-                    <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding CodeText}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock FontSize="11" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StateText}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock FontSize="11" Foreground="{StaticResource AppSecondaryTextBrush}">
-                        <Run Text="F" /><Run Text="{Binding Fila}" /><Run Text=" · C" /><Run Text="{Binding Columna}" />
-                    </TextBlock>
-                </StackPanel>
+            <Button Width="132" Height="78" Margin="0,0,8,8" Padding="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Click="LocationPickerCell_Click" Tag="{Binding}">
+                <Grid>
+                    <Border Background="{StaticResource AppAccentSoftBrush}" CornerRadius="4" />
+                    <Border Background="{StaticResource AppWarningBrush}" CornerRadius="4" Opacity="0.35" Visibility="{Binding IsOccupied, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <Border BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="3" CornerRadius="4" Visibility="{Binding IsCurrentSelection, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <FontIcon Margin="6" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="13" Foreground="{StaticResource AppPrimaryTextBrush}" Glyph="&#xE73E;" Visibility="{Binding IsCurrentSelection, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <StackPanel Padding="8" Spacing="2">
+                        <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding CodeText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding StateText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="11" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding OccupancyText}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="11" Foreground="{StaticResource AppSecondaryTextBrush}">
+                            <Run Text="F" /><Run Text="{Binding Fila}" /><Run Text=" · C" /><Run Text="{Binding Columna}" />
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
             </Button>
         </DataTemplate>
         <DataTemplate x:Key="LocationPickerRowTemplate">
@@ -255,7 +262,7 @@
                 </Grid>
                 <ScrollViewer Grid.Row="1">
                     <StackPanel Spacing="12">
-                        <Border Padding="12" Background="{StaticResource AppDangerBrush}" CornerRadius="6" Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}"><TextBlock Foreground="White" Text="{Binding ValidationMessage}" TextWrapping="WrapWholeWords" /></Border>
+                        <InfoBar IsClosable="False" IsIconVisible="True" IsOpen="{Binding HasValidationErrors}" Message="{Binding ValidationMessage}" Severity="Error" Title="Revisa el formulari" />
                         <ComboBox Header="Producte" DisplayMemberPath="DisplayText" ItemsSource="{Binding ProductOptions}" PlaceholderText="Selecciona producte" SelectedValue="{Binding DraftIdProducte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Value" />
                         <Grid ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
@@ -293,7 +300,7 @@
                 </StackPanel>
                 <ScrollViewer Grid.Row="1">
                     <StackPanel Spacing="12">
-                        <Border Padding="12" Background="{StaticResource AppDangerBrush}" CornerRadius="6" Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}"><TextBlock Foreground="White" Text="{Binding ValidationMessage}" TextWrapping="WrapWholeWords" /></Border>
+                        <InfoBar IsClosable="False" IsIconVisible="True" IsOpen="{Binding HasValidationErrors}" Message="{Binding ValidationMessage}" Severity="Error" Title="Revisa l'operacio" />
 
                         <StackPanel Spacing="12" Visibility="{Binding IsEntradaMode, Converter={StaticResource BoolToVisibilityConverter}}">
                             <ComboBox Header="Producte" DisplayMemberPath="DisplayText" ItemsSource="{Binding ProductOptions}" PlaceholderText="Selecciona producte" SelectedValue="{Binding OperationIdProducte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Value" />
@@ -344,7 +351,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="4">
                         <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Seleccionar ubicacio" />
-                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Tria una posicio des del mapa visual o tanca per continuar amb el desplegable." />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Tria una posicio des del mapa visual. Les ubicacions ocupades queden marcades i la seleccio actual mostra un contorn." />
                     </StackPanel>
                     <Button Grid.Column="1" Width="36" Height="36" Padding="0" Click="CancelLocationPickerButton_Click">
                         <FontIcon Glyph="&#xE711;" />

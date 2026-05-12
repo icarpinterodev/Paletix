@@ -6,6 +6,7 @@ namespace PaletixDesktop.Settings
         public const string ApiBaseUrl = "https://localhost:7137/";
         public const string ApiKey = "clau-api-complexa-564";
         public const string LocalDatabaseName = "paletix-local.db";
+        public const bool DisableAuthentication = false;
 
         public const int InitialWindowWidth = 1500;
         public const int InitialWindowHeight = 900;

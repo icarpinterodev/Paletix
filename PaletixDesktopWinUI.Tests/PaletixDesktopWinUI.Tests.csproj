@@ -49,6 +49,9 @@
     <PackageReference Include="MSTest.TestAdapter" Version="4.2.2" />
     <PackageReference Include="MSTest.TestFramework" Version="4.2.2" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharedContracts\SharedContracts.csproj" />
+  </ItemGroup>
 
   <!-- 
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Pages.OrdersView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:PaletixDesktop.Views.Controls"
+    Loaded="OrdersView_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="OrderCellBorderStyle" TargetType="Border">
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="BorderBrush" Value="{StaticResource AppStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,1,1" />
+        </Style>
+        <Style x:Key="OrderCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid Padding="28,24,28,28" RowSpacing="18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="430" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="4">
+                    <TextBlock FontSize="30" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Comandes" />
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <TextBox
+                    Grid.Column="1"
+                    VerticalAlignment="Bottom"
+                    PlaceholderText="Cercar id, client, estat, vehicle o sync"
+                    Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Total" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding TotalOrders}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Actives" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding OpenOrders}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Padding="14" Style="{StaticResource ShellCardBorderStyle}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Pendents sync" />
+                        <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PendingOrders}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="2" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="2">
+                        <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Llista de comandes" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Capcalera, estat, assignacions i linies de producte." />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Spacing="8" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ProgressRing Width="22" Height="22" IsActive="True" Background="LightGray" />
+                        <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Carregant..." />
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SelectedCountText}" />
+                </Grid>
+
+                <Border Grid.Row="1" Style="{StaticResource ShellCardBorderStyle}">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ListView
+                            x:Name="OrdersList"
+                            Background="Transparent"
+                            ItemsSource="{Binding FilteredOrders}"
+                            SelectionChanged="OrdersSelectionChanged"
+                            SelectionMode="Multiple">
+                            <ListView.Header>
+                                <Grid MinWidth="1500" MinHeight="46" Background="{StaticResource AppSurfaceAltBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="62" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="240" />
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="220" />
+                                        <ColumnDefinition Width="220" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="160" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource OrderCellBorderStyle}"><CheckBox x:Name="SelectVisibleOrdersCheckBox" Style="{StaticResource OrderCheckBoxStyle}" Click="HeaderCheckBox_Click" /></Border>
+                                    <Border Grid.Column="1" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="ID" /></Border>
+                                    <Border Grid.Column="2" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Client" /></Border>
+                                    <Border Grid.Column="3" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Entrega" /></Border>
+                                    <Border Grid.Column="4" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Xofer" /></Border>
+                                    <Border Grid.Column="5" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Vehicle" /></Border>
+                                    <Border Grid.Column="6" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Estat" /></Border>
+                                    <Border Grid.Column="7" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Linies" /></Border>
+                                    <Border Grid.Column="8" Style="{StaticResource OrderCellBorderStyle}"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Caixes" /></Border>
+                                    <Border Grid.Column="9" Padding="12,10"><TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Sync" /></Border>
+                                </Grid>
+                            </ListView.Header>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid MinWidth="1500" MinHeight="64" Opacity="{Binding IsPending, Converter={StaticResource BoolToOpacityConverter}, ConverterParameter=0.72}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="62" />
+                                            <ColumnDefinition Width="90" />
+                                            <ColumnDefinition Width="240" />
+                                            <ColumnDefinition Width="160" />
+                                            <ColumnDefinition Width="220" />
+                                            <ColumnDefinition Width="220" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="160" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Style="{StaticResource OrderCellBorderStyle}"><CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Style="{StaticResource OrderCheckBoxStyle}" Tag="{Binding}" Click="LineCheckBox_Click" /></Border>
+                                        <Border Grid.Column="1" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Id}" /></Border>
+                                        <Border Grid.Column="2" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ClientText}" TextTrimming="CharacterEllipsis" /></Border>
+                                        <Border Grid.Column="3" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding DeliveryText}" /></Border>
+                                        <Border Grid.Column="4" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding ChoferText}" TextTrimming="CharacterEllipsis" /></Border>
+                                        <Border Grid.Column="5" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding VehicleText}" TextTrimming="CharacterEllipsis" /></Border>
+                                        <Border Grid.Column="6" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding EstatText}" TextTrimming="CharacterEllipsis" /></Border>
+                                        <Border Grid.Column="7" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding LinesText}" /></Border>
+                                        <Border Grid.Column="8" Style="{StaticResource OrderCellBorderStyle}"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding BoxesText}" /></Border>
+                                        <Border Grid.Column="9" Padding="12,10"><TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding SyncStateText}" TextTrimming="CharacterEllipsis" /></Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Border Background="#4D000000" IsHitTestVisible="True" Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <Border
+            Width="700"
+            Padding="24"
+            HorizontalAlignment="Right"
+            Background="{StaticResource AppSurfaceBrush}"
+            BorderBrush="{StaticResource AppStrokeBrush}"
+            BorderThickness="1,0,0,0"
+            Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid RowSpacing="18">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Spacing="4">
+                    <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PanelTitle}" />
+                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding PanelSubtitle}" />
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="16">
+                        <InfoBar
+                            IsClosable="False"
+                            IsIconVisible="True"
+                            IsOpen="{Binding HasValidationErrors}"
+                            Message="{Binding ValidationMessage}"
+                            Severity="Error"
+                            Title="Revisa la comanda" />
+
+                        <Grid ColumnSpacing="12" RowSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <ComboBox Header="Client" DisplayMemberPath="DisplayText" ItemsSource="{Binding ClientOptions}" PlaceholderText="Selecciona client" SelectedValue="{Binding DraftIdClient, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Id" />
+                            <ComboBox Grid.Column="1" Header="Estat" DisplayMemberPath="DisplayText" ItemsSource="{Binding StateOptions}" PlaceholderText="Selecciona estat" SelectedValue="{Binding DraftIdEstat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Id" />
+                            <ComboBox Grid.Row="1" Header="Xofer" DisplayMemberPath="DisplayText" ItemsSource="{Binding UserOptions}" PlaceholderText="Selecciona xofer" SelectedValue="{Binding DraftIdChofer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Id" />
+                            <ComboBox Grid.Row="1" Grid.Column="1" Header="Preparador" DisplayMemberPath="DisplayText" ItemsSource="{Binding UserOptions}" PlaceholderText="Selecciona preparador" SelectedValue="{Binding DraftIdPreparador, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Id" />
+                            <ComboBox Grid.Row="2" Header="Vehicle" DisplayMemberPath="DisplayText" ItemsSource="{Binding VehicleOptions}" PlaceholderText="Selecciona vehicle" SelectedValue="{Binding DraftIdVehicleTransportista, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Id" />
+                            <DatePicker Grid.Row="2" Grid.Column="1" Header="Entrega prevista" Date="{Binding DraftDataPrevistaEntregaDate, Mode=TwoWay}" />
+                            <CheckBox Grid.Row="3" Content="Data entregada" IsChecked="{Binding DraftHasDataEntregat, Mode=TwoWay}" />
+                            <DatePicker Grid.Row="3" Grid.Column="1" Header="Entregada" Date="{Binding DraftDataEntregatDate, Mode=TwoWay}" IsEnabled="{Binding DraftHasDataEntregat}" />
+                        </Grid>
+
+                        <TextBox Header="Adreca alternativa" PlaceholderText="Opcional" Text="{Binding DraftAdrecaEntregaAlternativa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Poblacio alternativa" PlaceholderText="Opcional" Text="{Binding DraftPoblacioEntregaAlternativa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Header="Notes" PlaceholderText="Notes internes de la comanda" Text="{Binding DraftNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="70" />
+
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox Header="Ubicacio predeterminada per productes nous" DisplayMemberPath="DisplayText" ItemsSource="{Binding LocationOptions}" PlaceholderText="Selecciona ubicacio" SelectedValue="{Binding DraftDefaultLocationId, Mode=TwoWay}" SelectedValuePath="Id" />
+                            <Button Grid.Column="1" VerticalAlignment="Bottom" Background="{StaticResource AppAccentBrush}" Foreground="White" Click="OpenProductPickerButton_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE8F1;" />
+                                    <TextBlock Text="Afegir productes" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Border Style="{StaticResource ShellCardBorderStyle}">
+                            <Grid RowSpacing="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="190" />
+                            </Grid.RowDefinitions>
+                                <Grid Padding="12" ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Linies" />
+                                    <Button Grid.Column="1" Padding="8" Click="RemoveSelectedDraftLineButton_Click">
+                                        <FontIcon Glyph="&#xE74D;" />
+                                    </Button>
+                                </Grid>
+                                <ListView x:Name="DraftLinesList" Grid.Row="1" ItemsSource="{Binding DraftLines}" SelectionMode="Single">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid MinWidth="620" ColumnSpacing="8" Padding="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="170" />
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="42" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ProducteText}" TextTrimming="CharacterEllipsis" />
+                                                <ComboBox Grid.Column="1" DisplayMemberPath="DisplayText" ItemsSource="{Binding DataContext.LocationOptions, ElementName=DraftLinesList}" SelectedValue="{Binding IdUbicacio, Mode=TwoWay}" SelectedValuePath="Id" />
+                                                <NumberBox Grid.Column="2" Header="Palets" Minimum="0" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding PaletsValue, Mode=TwoWay}" />
+                                                <NumberBox Grid.Column="3" Header="Caixes" Minimum="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding CaixesValue, Mode=TwoWay}" />
+                                                <Button Grid.Column="4" Width="36" Height="36" Padding="0" VerticalAlignment="Bottom" Tag="{Binding}" Click="RemoveDraftLineButton_Click">
+                                                    <FontIcon Glyph="&#xE74D;" />
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Cancelar" Click="CancelButton_Click" />
+                    <Button Background="{StaticResource AppAccentBrush}" Foreground="White" Content="Guardar" Click="SaveButton_Click" />
+                </StackPanel>
+
+                <Popup
+                    x:Name="ProductPickerPopup"
+                    HorizontalOffset="-800"
+                    VerticalOffset="90"
+                    IsLightDismissEnabled="True"
+                    IsOpen="{Binding IsProductPickerOpen, Mode=TwoWay}">
+                    <Border
+                        Width="760"
+                        Height="620"
+                        Padding="18"
+                        Background="{StaticResource AppSurfaceBrush}"
+                        BorderBrush="{StaticResource AppStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <Grid RowSpacing="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Selector de productes" />
+                                    <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Tria quantitat en palets i caixes abans d'afegir." />
+                                </StackPanel>
+                                <Button Grid.Column="1" Width="40" Height="40" Padding="0" Click="CloseProductPickerButton_Click">
+                                    <FontIcon Glyph="&#xE711;" />
+                                </Button>
+                            </Grid>
+                            <controls:ProductSelectionGrid Grid.Row="1" DataContext="{Binding}" />
+                        </Grid>
+                    </Border>
+                </Popup>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

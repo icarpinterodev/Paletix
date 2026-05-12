@@ -3,7 +3,6 @@
     x:Class="PaletixDesktop.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:shell="using:PaletixDesktop.Views.Shell"
     Title="Paletix Desktop"
     
     
@@ -13,5 +12,10 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <shell:ShellView />
+    <Grid Background="{StaticResource AppBackgroundBrush}">
+        <ContentControl
+            x:Name="RootContent"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch" />
+    </Grid>
 </Window>

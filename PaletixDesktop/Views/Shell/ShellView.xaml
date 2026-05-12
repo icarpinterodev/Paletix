@@ -208,6 +208,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -218,16 +219,12 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Spacing="3">
+            <StackPanel VerticalAlignment="Center" Spacing="3">
                 <TextBlock
                     FontSize="22"
                     FontWeight="SemiBold"
                     Foreground="{StaticResource AppPrimaryTextBrush}"
                     Text="{Binding Shell.WindowTitle}" />
-                <TextBlock
-                    FontSize="13"
-                    Foreground="{StaticResource AppSecondaryTextBrush}"
-                    Text="{Binding Shell.UserRoleLine}" />
             </StackPanel>
 
             <StackPanel
@@ -362,6 +359,50 @@
                     </Button.Flyout>
                 </Button>
                 <Border
+                    Padding="10,7"
+                    Style="{StaticResource ShellCardBorderStyle}"
+                    Visibility="{Binding ImportJob.IsActive, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <TextBlock
+                            MaxWidth="180"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource AppPrimaryTextBrush}"
+                            Text="{Binding ImportJob.StatusText}"
+                            TextTrimming="CharacterEllipsis" />
+                        <ProgressBar
+                            Width="130"
+                            VerticalAlignment="Center"
+                            IsIndeterminate="True"
+                            ShowError="False"
+                            ShowPaused="{Binding ImportJob.IsPaused}" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Foreground="{StaticResource AppSecondaryTextBrush}"
+                            Text="{Binding ImportJob.ProgressText}" />
+                        <Button
+                            MinWidth="34"
+                            Padding="8,5"
+                            Click="ToggleImportPauseButton_Click"
+                            ToolTipService.ToolTip="{Binding ImportJob.PauseResumeTooltip}">
+                            <FontIcon
+                                FontSize="13"
+                                Glyph="{Binding ImportJob.PauseResumeGlyph}" />
+                        </Button>
+                        <Button
+                            MinWidth="34"
+                            Padding="8,5"
+                            Click="CancelImportButton_Click"
+                            ToolTipService.ToolTip="Cancel.lar importacio">
+                            <FontIcon
+                                FontSize="13"
+                                Glyph="&#xE711;" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+                <Border
                     Padding="13,8"
                     Background="{Binding Shell.SyncStateBackground}"
                     CornerRadius="8">
@@ -376,19 +417,13 @@
                             Text="{Binding Shell.SyncStateText}" />
                     </StackPanel>
                 </Border>
-                <Border
-                    Padding="13,8"
-                    Style="{StaticResource ShellCardBorderStyle}">
-                    <TextBlock
-                        Foreground="{StaticResource AppPrimaryTextBrush}"
-                        Text="{Binding Shell.UserProgressLine}" />
-                </Border>
             </StackPanel>
 
             <ListView
                 x:Name="CategoryList"
                 Grid.Column="1"
                 MaxHeight="66"
+                HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Background="Transparent"
                 IsItemClickEnabled="False"
@@ -414,7 +449,23 @@
             Background="{StaticResource AppSurfaceBrush}"
             DefaultLabelPosition="Right" />
 
-        <Grid Grid.Row="2">
+        <InfoBar
+            Grid.Row="2"
+            Margin="18,10,18,0"
+            IsClosable="False"
+            IsIconVisible="True"
+            IsOpen="{Binding Shell.HasStatusAlert}"
+            Message="{Binding Shell.StatusAlertMessage}"
+            Severity="{Binding Shell.StatusAlertSeverity}"
+            Title="{Binding Shell.StatusAlertTitle}">
+            <InfoBar.ActionButton>
+                <Button
+                    Click="RetryAllPendingButton_Click"
+                    Content="Sincronitzar" />
+            </InfoBar.ActionButton>
+        </InfoBar>
+
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{x:Bind ViewModel.SidePanelWidth, Mode=OneWay}" />
                 <ColumnDefinition Width="*" />
@@ -467,22 +518,127 @@
                     SelectionMode="Single"
                     Visibility="{Binding IsCompact, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-                <StackPanel
+                <Button
                     Grid.Row="2"
                     Margin="0,12,0,0"
-                    Spacing="3"
+                    MinHeight="76"
+                    Padding="12"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
                     Visibility="{Binding IsCompact, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
-                    <TextBlock
-                        FontWeight="SemiBold"
-                        Foreground="{StaticResource AppPrimaryTextBrush}"
-                        Text="{Binding Shell.UserDisplayName}"
-                        TextTrimming="CharacterEllipsis" />
-                    <TextBlock
-                        FontSize="12"
-                        Foreground="{StaticResource AppSecondaryTextBrush}"
-                        Text="{Binding Shell.SyncDetailText}"
-                        TextTrimming="CharacterEllipsis" />
-                </StackPanel>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Width="42"
+                            Height="42"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource AppAccentBrush}"
+                            CornerRadius="21">
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="13"
+                                FontWeight="SemiBold"
+                                Foreground="White"
+                                Text="{Binding Shell.CurrentUser.Initials}" />
+                        </Border>
+
+                        <StackPanel
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Spacing="3">
+                            <TextBlock
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource AppPrimaryTextBrush}"
+                                Text="{Binding Shell.UserDisplayName}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="{StaticResource AppSecondaryTextBrush}"
+                                Text="{Binding Shell.UserRoleLine}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="{StaticResource AppSecondaryTextBrush}"
+                                Text="{Binding Shell.UserProgressLine}"
+                                TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </Grid>
+                    <Button.Flyout>
+                        <Flyout Placement="TopEdgeAlignedLeft">
+                            <Grid Width="320" RowSpacing="18">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border
+                                        Width="68"
+                                        Height="68"
+                                        Background="{StaticResource AppAccentBrush}"
+                                        CornerRadius="34">
+                                        <TextBlock
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontSize="20"
+                                            FontWeight="SemiBold"
+                                            Foreground="White"
+                                            Text="{Binding Shell.CurrentUser.Initials}" />
+                                    </Border>
+                                    <StackPanel
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Spacing="4">
+                                        <TextBlock
+                                            FontSize="20"
+                                            FontWeight="SemiBold"
+                                            Foreground="{StaticResource AppPrimaryTextBrush}"
+                                            Text="{Binding Shell.UserDisplayName}"
+                                            TextWrapping="Wrap" />
+                                        <TextBlock
+                                            Foreground="{StaticResource AppSecondaryTextBrush}"
+                                            Text="{Binding Shell.UserRoleLine}"
+                                            TextWrapping="Wrap" />
+                                        <TextBlock
+                                            Foreground="{StaticResource AppSecondaryTextBrush}"
+                                            Text="{Binding Shell.UserProgressLine}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <InfoBar
+                                    Grid.Row="1"
+                                    IsClosable="False"
+                                    IsIconVisible="True"
+                                    IsOpen="{Binding Shell.HasStatusAlert}"
+                                    Message="{Binding Shell.StatusAlertMessage}"
+                                    Severity="{Binding Shell.StatusAlertSeverity}"
+                                    Title="{Binding Shell.StatusAlertTitle}" />
+
+                                <Button
+                                    Grid.Row="2"
+                                    MinHeight="40"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    Click="LogoutButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <FontIcon Glyph="&#xF3B1;" />
+                                        <TextBlock Text="Tancar sessio" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
             </Grid>
 
             <ContentControl

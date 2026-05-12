@@ -136,9 +136,27 @@ namespace PaletixDesktop.Views.Pages
         private void PreviousEditButton_Click(object sender, RoutedEventArgs e) { ViewModel.MoveEdit(-1); SyncSelectionToControls(); }
         private void NextEditButton_Click(object sender, RoutedEventArgs e) { ViewModel.MoveEdit(1); SyncSelectionToControls(); }
 
-        private void LocationPickerCell_Click(object sender, RoutedEventArgs e)
+        private async void LocationPickerCell_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not FrameworkElement { Tag: LocationDesignerCell cell }) return;
+            if (cell.IsOccupied && !cell.IsCurrentSelection)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Ubicacio ocupada",
+                    Content = ViewModel.GetOccupiedLocationDialogText(cell),
+                    PrimaryButtonText = ViewModel.OccupiedLocationPrimaryButtonText,
+                    CloseButtonText = "Triar una altra",
+                    DefaultButton = ContentDialogButton.Close,
+                    XamlRoot = XamlRoot
+                };
+
+                if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+            }
+
             ViewModel.SelectLocationFromPicker(cell);
         }
 

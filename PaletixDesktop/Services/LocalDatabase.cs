@@ -105,6 +105,20 @@ namespace PaletixDesktop.Services
                 : default;
         }
 
+        public async Task RemoveAsync(
+            string key,
+            CancellationToken cancellationToken = default)
+        {
+            using var connection = CreateConnection();
+            await connection.OpenAsync(cancellationToken);
+
+            using var command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM local_kv WHERE key = $key;";
+            command.AddParameter("$key", key);
+
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
         internal DbConnection CreateConnection()
         {
             EnsureSqliteRuntimeInitialized();

@@ -1,5 +1,6 @@
 using PaletixDesktop.Models;
 using PaletixDesktop.Settings;
+using SharedContracts;
 using SharedContracts.Dtos;
 using System;
 using System.Collections.Generic;
@@ -758,14 +759,13 @@ namespace PaletixDesktop.Services
                 await SaveCacheAsync(records, cancellationToken);
                 return await ResultAsync(record, records, $"{operation} aplicada offline. Queda pendent de sincronitzar.", cancellationToken);
             }
+            catch (ApiException ex)
+            {
+                throw new InvalidOperationException(ExtractApiMessage(ex));
+            }
             catch (Exception ex)
             {
-                var record = offlineMutation(records);
-                record.SyncState = WarehouseSyncState.Error;
-                record.SyncMessage = ex.Message;
-                await _syncQueue.EnqueueAsync("stock_operations", null, operation, endpoint, request!, cancellationToken);
-                await SaveCacheAsync(records, cancellationToken);
-                return await ResultAsync(record, records, $"{operation} queda en error sync.", cancellationToken);
+                throw new InvalidOperationException(ex.Message);
             }
         }
 
@@ -888,7 +888,7 @@ namespace PaletixDesktop.Services
 
         private static int Available(StockRecord record)
         {
-            return record.TotalsEnStock - record.ReservatsPerComandes;
+            return StockOperationRules.Available(record.TotalsEnStock, record.ReservatsPerComandes);
         }
 
         private static int NextTemporaryStockId(IReadOnlyList<StockRecord> records)
@@ -903,6 +903,14 @@ namespace PaletixDesktop.Services
             {
                 throw new InvalidOperationException("La quantitat ha de ser superior a 0.");
             }
+        }
+
+        private static string ExtractApiMessage(ApiException exception)
+        {
+            var message = exception.ResponseBody.Trim().Trim('"');
+            return string.IsNullOrWhiteSpace(message)
+                ? exception.Message
+                : message;
         }
     }
 

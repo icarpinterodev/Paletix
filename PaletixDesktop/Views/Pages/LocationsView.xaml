@@ -169,7 +169,7 @@
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                 <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel Spacing="4"><TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding PanelTitle}" /><TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding PanelSubtitle}" /></StackPanel><StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Visibility="{Binding IsEditingMultiple, Converter={StaticResource BoolToVisibilityConverter}}"><Button Width="34" Height="34" Padding="0" Click="PreviousEditButton_Click"><FontIcon Glyph="&#xE72B;" /></Button><Button Width="34" Height="34" Padding="0" Click="NextEditButton_Click"><FontIcon Glyph="&#xE72A;" /></Button></StackPanel></Grid>
                 <ScrollViewer Grid.Row="1"><StackPanel Spacing="12">
-                    <Border Padding="12" Background="{StaticResource AppDangerBrush}" CornerRadius="6" Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}"><TextBlock Foreground="White" Text="{Binding ValidationMessage}" TextWrapping="WrapWholeWords" /></Border>
+                    <InfoBar IsClosable="False" IsIconVisible="True" IsOpen="{Binding HasValidationErrors}" Message="{Binding ValidationMessage}" Severity="Error" Title="Revisa el formulari" />
                     <NumberBox Header="Zona" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftZonaValue, Mode=TwoWay}" />
                     <NumberBox Header="Passadis" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftPassadisValue, Mode=TwoWay}" />
                     <NumberBox Header="Bloc estanteria" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding DraftBlocEstanteriaValue, Mode=TwoWay}" />
@@ -189,7 +189,7 @@
                 </StackPanel>
                 <ScrollViewer Grid.Row="1">
                     <StackPanel Spacing="12">
-                        <Border Padding="12" Background="{StaticResource AppDangerBrush}" CornerRadius="6" Visibility="{Binding HasGeneratorValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}"><TextBlock Foreground="White" Text="{Binding GeneratorValidationMessage}" TextWrapping="WrapWholeWords" /></Border>
+                        <InfoBar IsClosable="False" IsIconVisible="True" IsOpen="{Binding HasGeneratorValidationErrors}" Message="{Binding GeneratorValidationMessage}" Severity="Error" Title="Revisa el generador" />
                         <NumberBox Header="Zona" Minimum="1" PlaceholderText="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding GeneratorZonaValue, Mode=TwoWay}" />
                         <Grid ColumnSpacing="10">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>

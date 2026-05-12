@@ -16,5 +16,19 @@ namespace PaletixDesktop.Models
         public IReadOnlyList<string> Permissions { get; init; } = new List<string>();
 
         public string DisplayName => string.Join(" ", new[] { Name, Surnames }.Where(value => !string.IsNullOrWhiteSpace(value)));
+
+        public string Initials
+        {
+            get
+            {
+                var parts = new[] { Name, Surnames }
+                    .Where(value => !string.IsNullOrWhiteSpace(value))
+                    .Select(value => value.Trim()[0].ToString().ToUpperInvariant())
+                    .Take(2)
+                    .ToList();
+
+                return parts.Count == 0 ? "U" : string.Concat(parts);
+            }
+        }
     }
 }

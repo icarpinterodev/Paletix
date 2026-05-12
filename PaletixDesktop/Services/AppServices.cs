@@ -13,28 +13,35 @@ namespace PaletixDesktop.Services
             MemoryCache = new MemoryEntityCache();
             SyncQueue = new SyncQueue(LocalDatabase);
             NotificationService = new NotificationService();
+            ImportJobService = new ImportJobService();
             LookupDataService = new LookupDataService(ApiClient, LocalDatabase);
             ClientDataService = new ClientDataService(ApiClient, LocalDatabase, SyncQueue);
             SupplierDataService = new SupplierDataService(ApiClient, LocalDatabase, SyncQueue);
             ProductDataService = new ProductDataService(ApiClient, LocalDatabase, SyncQueue);
+            OrderDataService = new OrderDataService(ApiClient, LocalDatabase, SyncQueue, LookupDataService);
+            AdminIdentityDataService = new AdminIdentityDataService(ApiClient, LocalDatabase, SyncQueue);
             StockDataService = new StockDataService(ApiClient, LocalDatabase, SyncQueue);
             LocationDataService = new LocationDataService(ApiClient, LocalDatabase, SyncQueue);
             SupplierLotDataService = new SupplierLotDataService(ApiClient, LocalDatabase, SyncQueue);
+            ComandaService = new ComandaService(ApiClient);
+            PickingDataService = new PickingDataService(ApiClient, LocalDatabase, SyncQueue, ComandaService, StockDataService, LookupDataService);
             PendingSyncService = new PendingSyncService(
                 SyncQueue,
                 LocalDatabase,
                 ClientDataService,
                 SupplierDataService,
                 ProductDataService,
+                OrderDataService,
                 StockDataService,
                 LocationDataService,
-                SupplierLotDataService);
-            AuthService = new AuthService(LocalDatabase);
+                SupplierLotDataService,
+                PickingDataService,
+                AdminIdentityDataService);
+            AuthService = new AuthService(LocalDatabase, ApiClient, settings);
             PermissionService = new PermissionService();
             NavigationService = new NavigationService();
             ShellNavigationCatalog = new ShellNavigationCatalog();
             ModuleCatalog = new ModuleCatalog();
-            ComandaService = new ComandaService(ApiClient);
             ShellViewModel = new ShellViewModel(AuthService, PermissionService, SyncQueue);
         }
 
@@ -44,13 +51,17 @@ namespace PaletixDesktop.Services
         public MemoryEntityCache MemoryCache { get; }
         public SyncQueue SyncQueue { get; }
         public NotificationService NotificationService { get; }
+        public ImportJobService ImportJobService { get; }
         public LookupDataService LookupDataService { get; }
         public ClientDataService ClientDataService { get; }
         public SupplierDataService SupplierDataService { get; }
         public ProductDataService ProductDataService { get; }
+        public OrderDataService OrderDataService { get; }
+        public AdminIdentityDataService AdminIdentityDataService { get; }
         public StockDataService StockDataService { get; }
         public LocationDataService LocationDataService { get; }
         public SupplierLotDataService SupplierLotDataService { get; }
+        public PickingDataService PickingDataService { get; }
         public PendingSyncService PendingSyncService { get; }
         public AuthService AuthService { get; }
         public PermissionService PermissionService { get; }

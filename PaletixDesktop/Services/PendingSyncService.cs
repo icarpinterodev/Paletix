@@ -16,9 +16,12 @@ namespace PaletixDesktop.Services
         private readonly ClientDataService _clientDataService;
         private readonly SupplierDataService _supplierDataService;
         private readonly ProductDataService _productDataService;
+        private readonly OrderDataService _orderDataService;
         private readonly StockDataService _stockDataService;
         private readonly LocationDataService _locationDataService;
         private readonly SupplierLotDataService _supplierLotDataService;
+        private readonly PickingDataService _pickingDataService;
+        private readonly AdminIdentityDataService _adminIdentityDataService;
         private string _statusText = "Sense canvis pendents.";
 
         public PendingSyncService(
@@ -27,18 +30,24 @@ namespace PaletixDesktop.Services
             ClientDataService clientDataService,
             SupplierDataService supplierDataService,
             ProductDataService productDataService,
+            OrderDataService orderDataService,
             StockDataService stockDataService,
             LocationDataService locationDataService,
-            SupplierLotDataService supplierLotDataService)
+            SupplierLotDataService supplierLotDataService,
+            PickingDataService pickingDataService,
+            AdminIdentityDataService adminIdentityDataService)
         {
             _syncQueue = syncQueue;
             _localDatabase = localDatabase;
             _clientDataService = clientDataService;
             _supplierDataService = supplierDataService;
             _productDataService = productDataService;
+            _orderDataService = orderDataService;
             _stockDataService = stockDataService;
             _locationDataService = locationDataService;
             _supplierLotDataService = supplierLotDataService;
+            _pickingDataService = pickingDataService;
+            _adminIdentityDataService = adminIdentityDataService;
         }
 
         public ObservableCollection<PendingSyncOperation> Items { get; } = new();
@@ -61,10 +70,15 @@ namespace PaletixDesktop.Services
                 items.AddRange((await _syncQueue.GetActiveAsync("clients", cancellationToken)).Select(ToOperation));
                 items.AddRange((await _syncQueue.GetActiveAsync("suppliers", cancellationToken)).Select(ToOperation));
                 items.AddRange((await _syncQueue.GetActiveAsync("products", cancellationToken)).Select(ToOperation));
+                items.AddRange((await _syncQueue.GetActiveAsync("orders", cancellationToken)).Select(ToOperation));
                 items.AddRange((await _syncQueue.GetActiveAsync("stock", cancellationToken)).Select(ToOperation));
                 items.AddRange((await _syncQueue.GetActiveAsync("stock_operations", cancellationToken)).Select(ToOperation));
                 items.AddRange((await _syncQueue.GetActiveAsync("ubicacions", cancellationToken)).Select(ToOperation));
                 items.AddRange((await _syncQueue.GetActiveAsync("proveidors_lot", cancellationToken)).Select(ToOperation));
+                items.AddRange((await _syncQueue.GetActiveAsync("picking_lines", cancellationToken)).Select(ToOperation));
+                items.AddRange((await _syncQueue.GetActiveAsync(AdminIdentityDataService.UsersEntityName, cancellationToken)).Select(ToOperation));
+                items.AddRange((await _syncQueue.GetActiveAsync(AdminIdentityDataService.RolesEntityName, cancellationToken)).Select(ToOperation));
+                items.AddRange((await _syncQueue.GetActiveAsync(AdminIdentityDataService.JobTitlesEntityName, cancellationToken)).Select(ToOperation));
 
                 Items.Clear();
                 foreach (var item in items.OrderByDescending(item => item.IsError).ThenBy(item => item.UpdatedUtc))
@@ -91,16 +105,24 @@ namespace PaletixDesktop.Services
                 await _syncQueue.MarkErrorsPendingAsync("clients", cancellationToken);
                 await _syncQueue.MarkErrorsPendingAsync("suppliers", cancellationToken);
                 await _syncQueue.MarkErrorsPendingAsync("products", cancellationToken);
+                await _syncQueue.MarkErrorsPendingAsync("orders", cancellationToken);
                 await _syncQueue.MarkErrorsPendingAsync("stock", cancellationToken);
                 await _syncQueue.MarkErrorsPendingAsync("stock_operations", cancellationToken);
                 await _syncQueue.MarkErrorsPendingAsync("ubicacions", cancellationToken);
                 await _syncQueue.MarkErrorsPendingAsync("proveidors_lot", cancellationToken);
+                await _syncQueue.MarkErrorsPendingAsync("picking_lines", cancellationToken);
+                await _syncQueue.MarkErrorsPendingAsync(AdminIdentityDataService.UsersEntityName, cancellationToken);
+                await _syncQueue.MarkErrorsPendingAsync(AdminIdentityDataService.RolesEntityName, cancellationToken);
+                await _syncQueue.MarkErrorsPendingAsync(AdminIdentityDataService.JobTitlesEntityName, cancellationToken);
                 await _clientDataService.LoadAsync(cancellationToken);
                 await _supplierDataService.LoadAsync(cancellationToken);
                 await _productDataService.LoadAsync(cancellationToken);
+                await _orderDataService.LoadAsync(cancellationToken);
                 await _stockDataService.LoadAsync(cancellationToken);
                 await _locationDataService.LoadAsync(cancellationToken);
                 await _supplierLotDataService.LoadAsync(cancellationToken);
+                await _pickingDataService.LoadAsync(cancellationToken);
+                await _adminIdentityDataService.LoadAsync(cancellationToken);
             }
             finally
             {
@@ -132,6 +154,10 @@ namespace PaletixDesktop.Services
                 {
                     await _productDataService.LoadAsync(cancellationToken);
                 }
+                else if (operation.EntityName == "orders")
+                {
+                    await _orderDataService.LoadAsync(cancellationToken);
+                }
                 else if (operation.EntityName == "stock")
                 {
                     await _stockDataService.LoadAsync(cancellationToken);
@@ -147,6 +173,14 @@ namespace PaletixDesktop.Services
                 else if (operation.EntityName == "proveidors_lot")
                 {
                     await _supplierLotDataService.LoadAsync(cancellationToken);
+                }
+                else if (operation.EntityName == "picking_lines")
+                {
+                    await _pickingDataService.LoadAsync(cancellationToken);
+                }
+                else if (operation.EntityName is AdminIdentityDataService.UsersEntityName or AdminIdentityDataService.RolesEntityName or AdminIdentityDataService.JobTitlesEntityName)
+                {
+                    await _adminIdentityDataService.LoadAsync(cancellationToken);
                 }
             }
             finally
@@ -190,6 +224,14 @@ namespace PaletixDesktop.Services
                     record.SyncMessage = "Canvi pendent descartat";
                 }, cancellationToken);
             }
+            else if (operation.EntityName == "orders")
+            {
+                await CleanCacheAsync<OrderRecord>("orders/list/v1", operation, record => record.IdText, record =>
+                {
+                    record.SyncState = OrderSyncState.Synced;
+                    record.SyncMessage = "Canvi pendent descartat";
+                }, cancellationToken);
+            }
             else if (operation.EntityName == "stock")
             {
                 await CleanWarehouseCacheAsync<StockRecord>("warehouse/stock/list/v1", operation, cancellationToken);
@@ -206,6 +248,53 @@ namespace PaletixDesktop.Services
             {
                 await CleanWarehouseCacheAsync<SupplierLotRecord>("warehouse/lots/list/v1", operation, cancellationToken);
             }
+            else if (operation.EntityName == "picking_lines")
+            {
+                await CleanPickingLineCacheAsync(operation, cancellationToken);
+            }
+            else if (operation.EntityName == AdminIdentityDataService.UsersEntityName)
+            {
+                await CleanCacheAsync<AdminUserRecord>("admin/users/list/v1", operation, record => record.IdText, record =>
+                {
+                    record.SyncState = AdminIdentitySyncState.Synced;
+                    record.SyncMessage = "Canvi pendent descartat";
+                }, cancellationToken);
+            }
+            else if (operation.EntityName == AdminIdentityDataService.RolesEntityName)
+            {
+                await CleanCacheAsync<AdminSimpleRecord>("admin/roles/list/v1", operation, record => record.IdText, record =>
+                {
+                    record.SyncState = AdminIdentitySyncState.Synced;
+                    record.SyncMessage = "Canvi pendent descartat";
+                }, cancellationToken);
+            }
+            else if (operation.EntityName == AdminIdentityDataService.JobTitlesEntityName)
+            {
+                await CleanCacheAsync<AdminSimpleRecord>("admin/carrecs/list/v1", operation, record => record.IdText, record =>
+                {
+                    record.SyncState = AdminIdentitySyncState.Synced;
+                    record.SyncMessage = "Canvi pendent descartat";
+                }, cancellationToken);
+            }
+        }
+
+        private async Task CleanPickingLineCacheAsync(PendingSyncOperation operation, CancellationToken cancellationToken)
+        {
+            await _localDatabase.InitializeAsync(cancellationToken);
+            var states = await _localDatabase.GetJsonAsync<List<PickingLineCacheCleanupRecord>>("operations/picking/line-state/v1", cancellationToken);
+            if (states is null)
+            {
+                return;
+            }
+
+            var state = states.FirstOrDefault(item => item.LineId.ToString(System.Globalization.CultureInfo.InvariantCulture) == operation.EntityId);
+            if (state is not null)
+            {
+                state.SyncState = PickingLineSyncState.Synced;
+                state.SyncMessage = "Canvi pendent descartat";
+            }
+
+            await _localDatabase.SetJsonAsync("operations/picking/line-state/v1", states, cancellationToken);
         }
 
         private async Task CleanWarehouseCacheAsync<T>(
@@ -276,10 +365,15 @@ namespace PaletixDesktop.Services
                 "clients" => "Clients",
                 "suppliers" => "Proveidors",
                 "products" => "Productes",
+                "orders" => "Comandes",
                 "stock" => "Stock",
                 "stock_operations" => "Operacions de stock",
                 "ubicacions" => "Ubicacions",
                 "proveidors_lot" => "Lots",
+                "picking_lines" => "Linies de picking",
+                "admin_users" => "Usuaris",
+                "admin_roles" => "Rols",
+                "admin_carrecs" => "Carrecs",
                 _ => entityName
             };
         }
@@ -339,6 +433,17 @@ namespace PaletixDesktop.Services
         {
             OnPropertyChanged(nameof(HasItems));
             OnPropertyChanged(nameof(CountText));
+        }
+
+        private sealed class PickingLineCacheCleanupRecord
+        {
+            public int LineId { get; set; }
+            public int? VerificationStateId { get; set; }
+            public int? ReservedStockId { get; set; }
+            public int ReservedBoxes { get; set; }
+            public PickingLineState State { get; set; }
+            public PickingLineSyncState SyncState { get; set; }
+            public string SyncMessage { get; set; } = "";
         }
     }
 }

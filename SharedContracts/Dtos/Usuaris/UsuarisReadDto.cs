@@ -10,7 +10,10 @@ public sealed class UsuarisReadDto
     public DateOnly DataContractacio { get; set; }
     public string Email { get; set; } = null!;
     public string Telefon { get; set; } = null!;
+    public decimal Salari { get; set; }
     public sbyte? Torn { get; set; }
+    public string? NumSeguretatSocial { get; set; }
+    public string? NumCompteBancari { get; set; }
     public int IdCarrec { get; set; }
     public int IdRol { get; set; }
     public int SaldoPunts { get; set; }

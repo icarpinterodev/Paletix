@@ -1,6 +1,10 @@
 <Solution>
   <Project Path="MagatzapiV2/MagatzapiV2.csproj" />
+  <Project Path="PaletixDesktop-Installer/PaletixDesktop-Installer.vdproj" Type="Installer">
+    <Build />
+  </Project>
   <Project Path="PaletixDesktop/PaletixDesktop.csproj">
+    <BuildType Project="Release" />
     <Platform Project="x64" />
   </Project>
   <Project Path="SharedContracts/SharedContracts.csproj" />

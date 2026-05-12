@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System.Threading.Tasks;
 using PaletixDesktop.Models;
@@ -60,6 +61,10 @@ namespace PaletixDesktop.ViewModels
                     OnPropertyChanged(nameof(SyncStateBackground));
                     OnPropertyChanged(nameof(HasPendingOperations));
                     OnPropertyChanged(nameof(PendingOperationsText));
+                    OnPropertyChanged(nameof(HasStatusAlert));
+                    OnPropertyChanged(nameof(StatusAlertSeverity));
+                    OnPropertyChanged(nameof(StatusAlertTitle));
+                    OnPropertyChanged(nameof(StatusAlertMessage));
                 }
             }
         }
@@ -74,6 +79,12 @@ namespace PaletixDesktop.ViewModels
             : $"{SyncStatus.PendingOperations} canvis pendents";
         public bool HasPendingOperations => SyncStatus.PendingOperations > 0;
         public string PendingOperationsText => SyncStatus.PendingOperations == 0 ? "" : SyncStatus.PendingOperations.ToString();
+        public bool HasStatusAlert => SyncStatus.IsOnline && SyncStatus.PendingOperations > 0;
+        public InfoBarSeverity StatusAlertSeverity => SyncStatus.PendingOperations > 0
+                ? InfoBarSeverity.Informational
+                : InfoBarSeverity.Success;
+        public string StatusAlertTitle => "Canvis pendents";
+        public string StatusAlertMessage => $"{SyncStatus.PendingOperations} canvi(s) pendent(s) de sincronitzar.";
 
         public bool CanViewOperations => _permissionService.CanAccess(AppFeature.Operations);
         public bool CanViewWarehouse => _permissionService.CanAccess(AppFeature.Warehouse);

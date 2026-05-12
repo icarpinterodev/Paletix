@@ -471,6 +471,10 @@ namespace PaletixDesktop.ViewModels
             {
                 SetDraftProperty(ref _draftIdUbicacio, value);
                 OnPropertyChanged(nameof(SelectedLocationText));
+                if (IsLocationPickerOpen)
+                {
+                    RebuildLocationPicker();
+                }
             }
         }
         public string DraftIdLot { get => _draftIdLot; set => SetDraftProperty(ref _draftIdLot, value); }
@@ -683,6 +687,18 @@ namespace PaletixDesktop.ViewModels
             OnPropertyChanged(nameof(SelectedLocationText));
         }
 
+        public string GetOccupiedLocationDialogText(LocationDesignerCell cell)
+        {
+            var action = OperationPanelMode == StockOperationPanelMode.Moviment
+                ? "moure stock cap a aquesta ubicacio"
+                : "usar aquesta ubicacio";
+            return $"La ubicacio {cell.CodeText} esta ocupada ({cell.OccupancyText}). Vols {action} igualment?";
+        }
+
+        public string OccupiedLocationPrimaryButtonText => OperationPanelMode == StockOperationPanelMode.Moviment
+            ? "Moure igualment"
+            : "Continuar igualment";
+
         public void OpenEntrada()
         {
             CancelPanel();
@@ -725,46 +741,54 @@ namespace PaletixDesktop.ViewModels
                 return;
             }
 
-            WarehouseMutationResult<StockRecord> result;
-            if (OperationPanelMode == StockOperationPanelMode.Entrada)
+            try
             {
-                result = await _dataService.ApplyEntradaAsync(new StockEntradaRequestDto
+                WarehouseMutationResult<StockRecord> result;
+                if (OperationPanelMode == StockOperationPanelMode.Entrada)
                 {
-                    IdProducte = ParseInt(OperationIdProducte, FirstLookupValue(ProductOptions)),
-                    IdUbicacio = ParseInt(OperationIdUbicacio, FirstLookupValue(LocationOptions)),
-                    IdLot = string.IsNullOrWhiteSpace(OperationIdLot) ? null : ParseInt(OperationIdLot, 0),
-                    Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)),
-                    Motiu = OperationMotiu
-                }, Records.ToList());
-            }
-            else if (OperationPanelMode == StockOperationPanelMode.Moviment)
-            {
-                result = await _dataService.ApplyMovimentAsync(new StockMovimentRequestDto
+                    result = await _dataService.ApplyEntradaAsync(new StockEntradaRequestDto
+                    {
+                        IdProducte = ParseInt(OperationIdProducte, FirstLookupValue(ProductOptions)),
+                        IdUbicacio = ParseInt(OperationIdUbicacio, FirstLookupValue(LocationOptions)),
+                        IdLot = string.IsNullOrWhiteSpace(OperationIdLot) ? null : ParseInt(OperationIdLot, 0),
+                        Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)),
+                        Motiu = OperationMotiu
+                    }, Records.ToList());
+                }
+                else if (OperationPanelMode == StockOperationPanelMode.Moviment)
                 {
-                    IdProducte = ParseInt(OperationIdProducte, FirstLookupValue(ProductOptions)),
-                    IdUbicacioOrigen = ParseInt(OperationIdUbicacioOrigen, FirstLookupValue(LocationOptions)),
-                    IdUbicacioDesti = ParseInt(OperationIdUbicacioDesti, FirstLookupValue(LocationOptions)),
-                    IdLot = string.IsNullOrWhiteSpace(OperationIdLot) ? null : ParseInt(OperationIdLot, 0),
-                    Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)),
-                    Motiu = OperationMotiu
-                }, Records.ToList());
-            }
-            else
-            {
-                var selected = SelectedRecords.First();
-                result = OperationPanelMode switch
+                    result = await _dataService.ApplyMovimentAsync(new StockMovimentRequestDto
+                    {
+                        IdProducte = ParseInt(OperationIdProducte, FirstLookupValue(ProductOptions)),
+                        IdUbicacioOrigen = ParseInt(OperationIdUbicacioOrigen, FirstLookupValue(LocationOptions)),
+                        IdUbicacioDesti = ParseInt(OperationIdUbicacioDesti, FirstLookupValue(LocationOptions)),
+                        IdLot = string.IsNullOrWhiteSpace(OperationIdLot) ? null : ParseInt(OperationIdLot, 0),
+                        Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)),
+                        Motiu = OperationMotiu
+                    }, Records.ToList());
+                }
+                else
                 {
-                    StockOperationPanelMode.Ajust => await _dataService.ApplyAjustAsync(new StockAjustRequestDto { IdStock = selected.Id, NouTotal = Math.Max(0, FromNumberValue(OperationNouTotalValue, 0)), Motiu = OperationMotiu }, Records.ToList()),
-                    StockOperationPanelMode.Reserva => await _dataService.ApplyReservaAsync(new StockReservaRequestDto { IdStock = selected.Id, Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)), Motiu = OperationMotiu }, Records.ToList()),
-                    StockOperationPanelMode.Alliberament => await _dataService.ApplyAlliberamentAsync(new StockAlliberamentRequestDto { IdStock = selected.Id, Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)), Motiu = OperationMotiu }, Records.ToList()),
-                    _ => throw new InvalidOperationException("Operacio no valida.")
-                };
-            }
+                    var selected = SelectedRecords.First();
+                    result = OperationPanelMode switch
+                    {
+                        StockOperationPanelMode.Ajust => await _dataService.ApplyAjustAsync(new StockAjustRequestDto { IdStock = selected.Id, NouTotal = Math.Max(0, FromNumberValue(OperationNouTotalValue, 0)), Motiu = OperationMotiu }, Records.ToList()),
+                        StockOperationPanelMode.Reserva => await _dataService.ApplyReservaAsync(new StockReservaRequestDto { IdStock = selected.Id, Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)), Motiu = OperationMotiu }, Records.ToList()),
+                        StockOperationPanelMode.Alliberament => await _dataService.ApplyAlliberamentAsync(new StockAlliberamentRequestDto { IdStock = selected.Id, Quantitat = Math.Max(1, FromNumberValue(OperationQuantitatValue, 1)), Motiu = OperationMotiu }, Records.ToList()),
+                        _ => throw new InvalidOperationException("Operacio no valida.")
+                    };
+                }
 
-            ApplyMutation(result);
-            OperationPanelMode = StockOperationPanelMode.None;
-            ValidationMessage = "";
-            await LoadHistoryAsync();
+                ApplyMutation(result);
+                OperationPanelMode = StockOperationPanelMode.None;
+                ValidationMessage = "";
+                await LoadHistoryAsync();
+            }
+            catch (Exception ex)
+            {
+                ValidationMessage = ex.Message;
+                StatusText = "No s'ha pogut aplicar l'operacio.";
+            }
         }
 
         public async Task OpenHistoryAsync()
@@ -788,6 +812,11 @@ namespace PaletixDesktop.ViewModels
         protected override void OnSelectionChanged()
         {
             OnPropertyChanged(nameof(OperationSelectedStockText));
+        }
+
+        protected override void OnRecordsChanged()
+        {
+            RebuildLocationPicker();
         }
 
         private async Task LoadHistoryAsync()
@@ -894,6 +923,10 @@ namespace PaletixDesktop.ViewModels
             if (SetProperty(ref storage, value, propertyName) && IsOperationPanelOpen)
             {
                 ValidateOperation();
+                if (propertyName is nameof(OperationIdUbicacio) or nameof(OperationIdUbicacioDesti))
+                {
+                    RebuildLocationPicker();
+                }
             }
         }
 
@@ -958,7 +991,17 @@ namespace PaletixDesktop.ViewModels
                         for (var columna = minColumna; columna <= maxColumna; columna++)
                         {
                             var record = blockRecords.FirstOrDefault(item => item.Fila == fila && item.Columna == columna);
-                            row.Cells.Add(new LocationDesignerCell(zoneGroup.Key, blockGroup.Key.Passadis, blockGroup.Key.BlocEstanteria, fila, columna, record));
+                            var occupancy = GetLocationOccupancy(record?.Id);
+                            row.Cells.Add(new LocationDesignerCell(
+                                zoneGroup.Key,
+                                blockGroup.Key.Passadis,
+                                blockGroup.Key.BlocEstanteria,
+                                fila,
+                                columna,
+                                record,
+                                occupancy.IsOccupied,
+                                IsCurrentLocationSelection(record?.Id),
+                                occupancy.Text));
                         }
 
                         block.Rows.Add(row);
@@ -969,6 +1012,43 @@ namespace PaletixDesktop.ViewModels
 
                 LocationPickerZones.Add(zone);
             }
+        }
+
+        private (bool IsOccupied, string Text) GetLocationOccupancy(int? locationId)
+        {
+            if (locationId is null)
+            {
+                return (false, "Lliure");
+            }
+
+            var stock = Records
+                .Where(record => record.IdUbicacio == locationId.Value && !record.IsPendingDelete && record.TotalsEnStock > 0)
+                .ToList();
+            if (stock.Count == 0)
+            {
+                return (false, "Lliure");
+            }
+
+            var units = stock.Sum(record => record.TotalsEnStock);
+            var products = stock.Select(record => record.IdProducte).Distinct().Count();
+            return (true, $"{units} u. · {products} prod.");
+        }
+
+        private bool IsCurrentLocationSelection(int? locationId)
+        {
+            if (locationId is null)
+            {
+                return false;
+            }
+
+            var current = OperationPanelMode switch
+            {
+                StockOperationPanelMode.Entrada => ParseInt(OperationIdUbicacio, 0),
+                StockOperationPanelMode.Moviment => ParseInt(OperationIdUbicacioDesti, 0),
+                _ => ParseInt(DraftIdUbicacio, 0)
+            };
+
+            return current == locationId.Value;
         }
     }
 
@@ -1426,7 +1506,16 @@ namespace PaletixDesktop.ViewModels
 
     public sealed class LocationDesignerCell
     {
-        public LocationDesignerCell(int zona, int passadis, int blocEstanteria, int fila, int columna, LocationRecord? record)
+        public LocationDesignerCell(
+            int zona,
+            int passadis,
+            int blocEstanteria,
+            int fila,
+            int columna,
+            LocationRecord? record,
+            bool isOccupied = false,
+            bool isCurrentSelection = false,
+            string occupancyText = "")
         {
             Zona = zona;
             Passadis = passadis;
@@ -1434,6 +1523,11 @@ namespace PaletixDesktop.ViewModels
             Fila = fila;
             Columna = columna;
             Record = record;
+            IsOccupied = isOccupied;
+            IsCurrentSelection = isCurrentSelection;
+            OccupancyText = string.IsNullOrWhiteSpace(occupancyText)
+                ? isOccupied ? "Ocupada" : "Lliure"
+                : occupancyText;
         }
 
         public int Zona { get; }
@@ -1445,9 +1539,12 @@ namespace PaletixDesktop.ViewModels
         public bool HasLocation => Record is not null;
         public bool IsSelected => Record?.IsSelected == true;
         public bool IsPending => Record?.IsPending == true;
+        public bool IsOccupied { get; }
+        public bool IsCurrentSelection { get; }
+        public string OccupancyText { get; }
         public string CodeText => Record?.CodiText ?? CoordinatesText;
         public string CoordinatesText => $"Z{Zona}-P{Passadis}-B{BlocEstanteria}-F{Fila}-C{Columna}";
-        public string StateText => Record?.SyncStateText ?? "Lliure";
+        public string StateText => IsOccupied ? "Ocupada" : Record?.SyncStateText ?? "Lliure";
         public string CellBrushKey => HasLocation ? "AppAccentBrush" : "AppSurfaceAltBrush";
     }
 

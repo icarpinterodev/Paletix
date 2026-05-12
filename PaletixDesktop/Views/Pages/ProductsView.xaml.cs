@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using PaletixDesktop.Models;
 using PaletixDesktop.ViewModels;
+using PaletixDesktop.Views.Dialogs;
 using PaletixDesktop.Views.Shell;
 using System;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace PaletixDesktop.Views.Pages
     {
         private bool _syncingSelection;
         private bool _loaded;
+        private ProductImportWizardWindow? _importWizardWindow;
 
         public ProductsView()
         {
@@ -52,7 +54,7 @@ namespace PaletixDesktop.Views.Pages
                     await DeleteSelectedWithConfirmationAsync();
                     break;
                 case "products.import":
-                    await ViewModel.ImportProductsAsync();
+                    await OpenImportWizardAsync();
                     break;
                 case "products.view.table":
                     ViewModel.SetViewMode(ProductCatalogViewMode.Table);
@@ -279,8 +281,28 @@ namespace PaletixDesktop.Views.Pages
 
         private async Task ImportProductsFromMenuAsync()
         {
-            await ViewModel.ImportProductsAsync();
+            await OpenImportWizardAsync();
             SyncSelectionToControls();
+        }
+
+        private async Task OpenImportWizardAsync()
+        {
+            if (_importWizardWindow is not null)
+            {
+                _importWizardWindow.Activate();
+                return;
+            }
+
+            await ViewModel.ImportProductsAsync();
+            var window = new ProductImportWizardWindow(ViewModel);
+            _importWizardWindow = window;
+            window.Closed += (_, _) =>
+            {
+                _importWizardWindow = null;
+                SyncSelectionToControls();
+            };
+
+            window.ShowModal();
         }
 
         private void SyncSelectionToControls(ListViewBase? source = null)

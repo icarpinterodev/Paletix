@@ -369,7 +369,7 @@
             VerticalAlignment="Stretch"
             Background="#4D000000"
             IsHitTestVisible="True"
-            Visibility="{Binding IsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+            Visibility="{Binding IsAnySidePanelOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
 
         <Border
             Grid.Column="1"
@@ -403,16 +403,13 @@
 
                 <ScrollViewer Grid.Row="1">
                     <StackPanel Spacing="12">
-                        <Border
-                            Padding="12"
-                            Background="{StaticResource AppDangerBrush}"
-                            CornerRadius="6"
-                            Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock
-                                Foreground="White"
-                                Text="{Binding ValidationMessage}"
-                                TextWrapping="WrapWholeWords" />
-                        </Border>
+                        <InfoBar
+                            IsClosable="False"
+                            IsIconVisible="True"
+                            IsOpen="{Binding HasValidationErrors}"
+                            Message="{Binding ValidationMessage}"
+                            Severity="Error"
+                            Title="Revisa el formulari" />
                         <TextBox Header="Referència" PlaceholderText="SKU-0001" Text="{Binding DraftReferencia, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBox Header="Nom" PlaceholderText="Nom del producte" Text="{Binding DraftNom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBox Header="Descripció" PlaceholderText="Descripcio breu del producte" Text="{Binding DraftDescripcio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
@@ -512,5 +509,6 @@
                 </StackPanel>
             </Grid>
         </Border>
+
     </Grid>
 </UserControl>

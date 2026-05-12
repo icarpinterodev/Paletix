@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Auth.LoginView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch">
+
+    <Grid
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        Background="{StaticResource AppBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.35*" />
+            <ColumnDefinition Width="520" />
+        </Grid.ColumnDefinitions>
+
+        <Grid
+            MinWidth="420"
+            Padding="50,42"
+            RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel
+                MaxWidth="760"
+                VerticalAlignment="Center"
+                Spacing="10">
+                <TextBlock FontSize="44" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Paletix Desktop" />
+                <TextBlock FontSize="20" Foreground="{StaticResource AppSecondaryTextBrush}" Text="ERP logistic gamificat amb treball offline, stock, comandes i permisos" TextWrapping="WrapWholeWords" />
+            </StackPanel>
+        </Grid>
+
+        <Border
+            Grid.Column="1"
+            Margin="0"
+            Padding="42"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="{StaticResource AppSurfaceBrush}"
+            BorderBrush="{StaticResource AppStrokeBrush}"
+            BorderThickness="1,0,0,0">
+            <Grid RowSpacing="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="1" Spacing="18">
+                    <InfoBar
+                        IsClosable="False"
+                        IsIconVisible="True"
+                        IsOpen="{Binding HasError}"
+                        Message="{Binding ErrorMessage}"
+                        Severity="Error"
+                        Title="{Binding StatusText}" />
+
+                    <StackPanel Spacing="4">
+                        <TextBlock FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Iniciar sessio" />
+                        <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StatusText}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+
+                    <TextBox
+                        x:Name="IdentifierBox"
+                        Header="Email o DNI"
+                        PlaceholderText="usuari@empresa.com"
+                        Text="{Binding Identifier, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <PasswordBox
+                        x:Name="PasswordInput"
+                        Header="Contrasenya"
+                        PlaceholderText=""
+                        KeyDown="PasswordInput_KeyDown" />
+
+                    <Button
+                        x:Name="LoginButton"
+                        MinHeight="44"
+                        HorizontalAlignment="Stretch"
+                        Background="{StaticResource AppAccentBrush}"
+                        Click="LoginButton_Click"
+                        Foreground="White">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8D7;" />
+                            <TextBlock Text="Entrar" />
+                        </StackPanel>
+                    </Button>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ProgressRing Width="22" Height="22" IsActive="True" />
+                        <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Validant credencials..." />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

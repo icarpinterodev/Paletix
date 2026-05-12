@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MagatzapiV2.Data;
 using MagatzapiV2.Dtos;
 using SharedContracts.Dtos;
+using SharedContracts;
 using MagatzapiV2.Infrastructure;
 using MagatzapiV2.Models;
 
@@ -418,7 +419,7 @@ public class StocksController : ControllerBase
 
     private static int Available(Stock stock)
     {
-        return stock.TotalsEnStock - stock.ReservatsPerComandes;
+        return StockOperationRules.Available(stock.TotalsEnStock, stock.ReservatsPerComandes);
     }
 
     private static StockMoviments NewMoviment(

@@ -294,16 +294,13 @@
 
                 <ScrollViewer Grid.Row="1">
                     <StackPanel Spacing="12">
-                        <Border
-                            Padding="12"
-                            Background="{StaticResource AppDangerBrush}"
-                            CornerRadius="6"
-                            Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock
-                                Foreground="White"
-                                Text="{Binding ValidationMessage}"
-                                TextWrapping="WrapWholeWords" />
-                        </Border>
+                        <InfoBar
+                            IsClosable="False"
+                            IsIconVisible="True"
+                            IsOpen="{Binding HasValidationErrors}"
+                            Message="{Binding ValidationMessage}"
+                            Severity="Error"
+                            Title="Revisa el formulari" />
                         <TextBox Header="Empresa" PlaceholderText="Distribucions Exemple SL" Text="{Binding DraftNomEmpresa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBox Header="NIF empresa" PlaceholderText="B12345678" Text="{Binding DraftNifEmpresa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBox Header="Telèfon" PlaceholderText="+34 972 000 000" Text="{Binding DraftTelefon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />

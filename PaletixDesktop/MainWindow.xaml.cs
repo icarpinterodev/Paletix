@@ -3,6 +3,8 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using PaletixDesktop.Services;
 using PaletixDesktop.Settings;
+using PaletixDesktop.Views.Auth;
+using PaletixDesktop.Views.Shell;
 using Windows.Graphics;
 
 namespace PaletixDesktop
@@ -18,11 +20,48 @@ namespace PaletixDesktop
         {
             Services = services;
             InitializeComponent();
+            InitializeRootContent();
             ApplyWindowOptions();
             SizeChanged += MainWindow_SizeChanged;
         }
 
         public AppServices Services { get; }
+
+        private void InitializeRootContent()
+        {
+            if (Services.Settings.DisableAuthentication)
+            {
+                ShowShell();
+                return;
+            }
+
+            ShowLogin();
+        }
+
+        private void ShowLogin()
+        {
+            var login = new LoginView();
+            login.LoginSucceeded += (_, _) => ShowShell();
+            RootContent.Content = login;
+        }
+
+        private void ShowShell()
+        {
+            var shell = new ShellView();
+            shell.LogoutRequested += async (_, _) =>
+            {
+                await Services.AuthService.LogoutAsync();
+                if (Services.Settings.DisableAuthentication)
+                {
+                    ShowShell();
+                }
+                else
+                {
+                    ShowLogin();
+                }
+            };
+            RootContent.Content = shell;
+        }
 
         private void ApplyWindowOptions()
         {

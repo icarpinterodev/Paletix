@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Dialogs.ProductImportWizardDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid
+        MinWidth="1000"
+        MinHeight="400"
+        Padding="28,24"
+        RowSpacing="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Spacing="4">
+            <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Importacio guiada" />
+            <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="El cataleg queda bloquejat fins que importis o cancel·lis." />
+        </StackPanel>
+
+        <Pivot x:Name="WizardPivot" Grid.Row="1" SelectionChanged="WizardPivot_SelectionChanged">
+            <PivotItem Header="Origen">
+                <Grid Padding="0,12,0,0" ColumnSpacing="18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="380" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="12">
+                            <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="1. Tria el fitxer o enganxa dades" />
+                            <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="El format es detecta automaticament amb l'extensio del fitxer. Si enganxes dades manualment, selecciona el format." TextWrapping="WrapWholeWords" />
+
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="145" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    Header="Format"
+                                    DisplayMemberPath="Label"
+                                    ItemsSource="{Binding ImportFormatOptions}"
+                                    SelectedValue="{Binding ImportFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedValuePath="Value" />
+                                <Button Grid.Column="1" VerticalAlignment="Bottom" Click="LoadImportFileButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8E5;" />
+                                        <TextBlock Text="Carregar fitxer" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <Expander HorizontalContentAlignment="Stretch" Padding="0">
+                                <Expander.Header>
+                                    <TextBlock FontWeight="SemiBold" Text="Ajuda de format" />
+                                </Expander.Header>
+                                <Expander.Content>
+                                    <StackPanel Margin="0,8,0,0" Spacing="12">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="CSV" />
+                                            <TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Primera fila amb capcalera. Separador acceptat: punt i coma, coma o tabulador." TextWrapping="WrapWholeWords" />
+                                            <Border Padding="8" Background="{StaticResource AppSurfaceAltBrush}" CornerRadius="6">
+                                                <TextBlock FontFamily="Consolas" FontSize="12" Foreground="{StaticResource AppPrimaryTextBrush}" Text="Referencia;Nom;IdTipus;IdProveidor;IdUbicacio;CaixesPerPalet;PreuVendaCaixa;CostPerCaixa" TextWrapping="Wrap" />
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Spacing="6">
+                                            <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="JSON" />
+                                            <TextBlock FontSize="12" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Llista d'objectes. Els noms dels camps poden ser iguals a la capcalera CSV." TextWrapping="WrapWholeWords" />
+                                            <Border Padding="8" Background="{StaticResource AppSurfaceAltBrush}" CornerRadius="6">
+                                                <TextBlock FontFamily="Consolas" FontSize="12" Foreground="{StaticResource AppPrimaryTextBrush}" Text="[{ &quot;Nom&quot;: &quot;Producte&quot;, &quot;IdTipus&quot;: 1, &quot;IdProveidor&quot;: 2, &quot;IdUbicacio&quot;: 3, &quot;CaixesPerPalet&quot;: 80, &quot;PreuVendaCaixa&quot;: 12.5, &quot;CostPerCaixa&quot;: 8.2 }]" TextWrapping="Wrap" />
+                                            </Border>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Expander.Content>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <TextBox
+                        Grid.Column="1"
+                        AcceptsReturn="True"
+                        Header="Dades d'importacio"
+                        PlaceholderText="Carrega un fitxer o enganxa aqui el CSV/JSON."
+                        Text="{Binding ImportRawText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TextWrapping="NoWrap" />
+                </Grid>
+            </PivotItem>
+
+            <PivotItem Header="Previsualitzacio" IsEnabled="{Binding HasImportRawText}">
+                <Grid Padding="0,12,0,0" RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Padding="12" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Files valides" />
+                                <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ValidImportCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Padding="12" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Files amb errors" />
+                                <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding InvalidImportCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Button Grid.Column="2" VerticalAlignment="Stretch" Click="PreviewImportButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8A7;" />
+                                <TextBlock Text="Recalcular" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <InfoBar
+                        Grid.Row="1"
+                        IsClosable="False"
+                        IsIconVisible="True"
+                        IsOpen="{Binding HasImportValidationErrors}"
+                        Message="{Binding ImportValidationMessage}"
+                        Severity="Error"
+                        Title="Revisa les dades d'importacio" />
+
+                    <Border Grid.Row="2" Style="{StaticResource ShellCardBorderStyle}">
+                        <ListView Background="Transparent" ItemsSource="{Binding ImportPreviewRows}">
+                            <ListView.Header>
+                                <Grid MinHeight="42" Padding="12,8" Background="{StaticResource AppSurfaceAltBrush}" ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="230" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Fila" />
+                                    <TextBlock Grid.Column="1" FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Referencia" />
+                                    <TextBlock Grid.Column="2" FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Nom" />
+                                    <TextBlock Grid.Column="3" FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Estat" />
+                                    <TextBlock Grid.Column="4" FontWeight="SemiBold" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Errors" />
+                                </Grid>
+                            </ListView.Header>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid MinHeight="54" Padding="12,8" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,0,0,1" ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="52" />
+                                            <ColumnDefinition Width="130" />
+                                            <ColumnDefinition Width="230" />
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding RowNumber}" />
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ReferenciaText}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding NomText}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="3" VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding StatusText}" />
+                                        <TextBlock Grid.Column="4" VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding ErrorText}" TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Border>
+                </Grid>
+            </PivotItem>
+
+            <PivotItem Header="Importacio" IsEnabled="{Binding CanGoToImportStep}">
+                <Grid Padding="0,12,0,0" RowSpacing="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="3. Confirma la importacio" />
+                    <TextBlock Grid.Row="1" Foreground="{StaticResource AppSecondaryTextBrush}" Text="Nomes s'importaran les files valides. Les files amb errors no es crearan; torna a Previsualitzacio per revisar-les." TextWrapping="WrapWholeWords" />
+
+                    <Grid Grid.Row="2" ColumnSpacing="12" RowSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Border Padding="18" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="6">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Preparats per importar" />
+                                <TextBlock FontSize="34" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ValidImportCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Padding="18" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="6">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="No importats per error" />
+                                <TextBlock FontSize="34" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding InvalidImportCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Padding="18" Style="{StaticResource ShellCardBorderStyle}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Progres" />
+                                <ProgressBar
+                                    Width="130"
+                                    HorizontalAlignment="Left"
+                                    IsIndeterminate="{Binding IsImporting}"
+                                    ShowError="False"
+                                    ShowPaused="{Binding ImportJob.IsPaused}" />
+                                <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{Binding IsImporting, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ProgressRing Width="24" Height="24" IsActive="True" Background="LightGray" />
+                                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding ImportProgressText}" />
+                                </StackPanel>
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="Si treballa en segon pla, podras pausar o cancel.lar la importacio des de la barra superior." TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                        </Border>
+                        <CheckBox
+                            Grid.Row="1"
+                            Grid.ColumnSpan="3"
+                            Content="Fer la importacio en segon pla"
+                            IsChecked="{Binding ImportRunsInBackground, Mode=TwoWay}" />
+                    </Grid>
+                </Grid>
+            </PivotItem>
+        </Pivot>
+
+        <Grid Grid.Row="2" Padding="0,12,0,0" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="0,1,0,0" ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding ImportProgressText}" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                <Button x:Name="CancelButton" MinWidth="132" Click="CancelButton_Click" Content="Cancelar" />
+                <Button x:Name="BackButton" MinWidth="132" Click="BackButton_Click" Content="Anterior" />
+                <Button x:Name="NextButton" MinWidth="132" Background="{StaticResource AppAccentBrush}" Click="NextButton_Click" Content="Seguent" Foreground="White" />
+                <Button x:Name="ImportButton" MinWidth="132" Background="{StaticResource AppAccentBrush}" Click="ApplyImportButton_Click" Content="Importar valids" Foreground="White" IsEnabled="{Binding CanApplyImport}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

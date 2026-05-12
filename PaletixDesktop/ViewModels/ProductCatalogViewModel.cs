@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using PaletixDesktop.Services;
+using SharedContracts.Import;
 
 namespace PaletixDesktop.ViewModels
 {
@@ -29,6 +30,8 @@ namespace PaletixDesktop.ViewModels
         private readonly ProductDataService _productDataService;
         private readonly LookupDataService _lookupDataService;
         private readonly ShellViewModel _shell;
+        private readonly NotificationService _notifications;
+        private readonly ImportJobService _importJob;
         private ProductCatalogViewMode _viewMode = ProductCatalogViewMode.Table;
         private ProductPanelMode _panelMode = ProductPanelMode.None;
         private string _searchText = "";
@@ -49,20 +52,35 @@ namespace PaletixDesktop.ViewModels
         private string _draftEstabilitatAlPalet = "";
         private string _draftPesKg = "";
         private string _validationMessage = "";
+        private bool _isImporting;
+        private bool _importRunsInBackground = true;
+        private string _importRawText = "";
+        private string _importFormat = "csv";
+        private string _importValidationMessage = "";
+        private string _importProgressText = "";
 
         public ProductCatalogViewModel()
-            : this(App.CurrentServices.ProductDataService, App.CurrentServices.LookupDataService, App.CurrentServices.ShellViewModel)
+            : this(
+                App.CurrentServices.ProductDataService,
+                App.CurrentServices.LookupDataService,
+                App.CurrentServices.ShellViewModel,
+                App.CurrentServices.NotificationService,
+                App.CurrentServices.ImportJobService)
         {
         }
 
         public ProductCatalogViewModel(
             ProductDataService productDataService,
             LookupDataService lookupDataService,
-            ShellViewModel shell)
+            ShellViewModel shell,
+            NotificationService notifications,
+            ImportJobService importJob)
         {
             _productDataService = productDataService;
             _lookupDataService = lookupDataService;
             _shell = shell;
+            _notifications = notifications;
+            _importJob = importJob;
         }
 
         public ObservableCollection<ProductRecord> Products { get; } = new();
@@ -71,6 +89,12 @@ namespace PaletixDesktop.ViewModels
         public ObservableCollection<LookupOption> ProductTypeOptions { get; } = new();
         public ObservableCollection<LookupOption> SupplierOptions { get; } = new();
         public ObservableCollection<LookupOption> LocationOptions { get; } = new();
+        public ObservableCollection<ProductImportPreviewRow> ImportPreviewRows { get; } = new();
+        public ObservableCollection<ProductImportFormatOption> ImportFormatOptions { get; } = new()
+        {
+            new ProductImportFormatOption("csv", "CSV"),
+            new ProductImportFormatOption("json", "JSON")
+        };
         public ObservableCollection<LookupOption> ActiveOptions { get; } = new()
         {
             new LookupOption { Id = 1, Label = "Actiu" },
@@ -98,6 +122,7 @@ namespace PaletixDesktop.ViewModels
                 if (SetProperty(ref _panelMode, value))
                 {
                     OnPropertyChanged(nameof(IsPanelOpen));
+                    OnPropertyChanged(nameof(IsAnySidePanelOpen));
                     OnPropertyChanged(nameof(PanelTitle));
                     OnPropertyChanged(nameof(PanelSubtitle));
                     OnPropertyChanged(nameof(IsEditingMultiple));
@@ -108,6 +133,7 @@ namespace PaletixDesktop.ViewModels
         public bool IsTableView => ViewMode == ProductCatalogViewMode.Table;
         public bool IsGridView => ViewMode == ProductCatalogViewMode.Grid;
         public bool IsPanelOpen => PanelMode != ProductPanelMode.None;
+        public bool IsAnySidePanelOpen => IsPanelOpen;
         public bool IsEditingMultiple => PanelMode == ProductPanelMode.Edit && SelectedProducts.Count > 1;
         public string PanelTitle => PanelMode == ProductPanelMode.Edit ? "Editar producte" : "Nou producte";
         public string PanelSubtitle => PanelMode == ProductPanelMode.Edit
@@ -177,6 +203,80 @@ namespace PaletixDesktop.ViewModels
         public bool HasValidationErrors => !string.IsNullOrWhiteSpace(ValidationMessage);
         public string ImagePreviewUrl => DraftImatgeUrl.Trim();
         public bool HasImagePreview => !string.IsNullOrWhiteSpace(DraftImatgeUrl) && InputValidation.IsValidImageUrl(DraftImatgeUrl);
+        public bool IsImporting
+        {
+            get => _isImporting;
+            private set
+            {
+                if (SetProperty(ref _isImporting, value))
+                {
+                    RaiseImportProperties();
+                }
+            }
+        }
+
+        public bool ImportRunsInBackground
+        {
+            get => _importRunsInBackground;
+            set => SetProperty(ref _importRunsInBackground, value);
+        }
+
+        public ImportJobService ImportJob => _importJob;
+
+        public string ImportRawText
+        {
+            get => _importRawText;
+            set
+            {
+                if (SetProperty(ref _importRawText, value))
+                {
+                    ImportValidationMessage = "";
+                    ImportPreviewRows.Clear();
+                    RaiseImportProperties();
+                }
+            }
+        }
+
+        public string ImportFormat
+        {
+            get => _importFormat;
+            set
+            {
+                if (SetProperty(ref _importFormat, value))
+                {
+                    ImportValidationMessage = "";
+                    ImportPreviewRows.Clear();
+                    RaiseImportProperties();
+                }
+            }
+        }
+
+        public string ImportValidationMessage
+        {
+            get => _importValidationMessage;
+            private set
+            {
+                if (SetProperty(ref _importValidationMessage, value))
+                {
+                    OnPropertyChanged(nameof(HasImportValidationErrors));
+                }
+            }
+        }
+
+        public string ImportProgressText
+        {
+            get => _importProgressText;
+            private set => SetProperty(ref _importProgressText, value);
+        }
+
+        public bool HasImportValidationErrors => !string.IsNullOrWhiteSpace(ImportValidationMessage);
+        public bool HasImportRawText => !string.IsNullOrWhiteSpace(ImportRawText);
+        public int ValidImportCount => ImportPreviewRows.Count(row => row.IsValid);
+        public int InvalidImportCount => ImportPreviewRows.Count(row => !row.IsValid);
+        public bool CanApplyImport => ValidImportCount > 0 && !IsImporting;
+        public bool CanPreviewImport => HasImportRawText && !IsImporting;
+        public bool CanGoToImportStep => ValidImportCount > 0 && !IsImporting;
+        public string ImportHelpText => "CSV amb capcalera o JSON com a llista d'objectes. Camps obligatoris: Nom, IdTipus, IdProveidor, IdUbicacio, CaixesPerPalet, PreuVendaCaixa i CostPerCaixa.";
         public double DraftVolumMlValue { get => ToNumberBoxValue(DraftVolumMl); set => SetNumberDraft(nameof(DraftVolumMl), value); }
         public double DraftCaixesPerPaletValue { get => ToNumberBoxValue(DraftCaixesPerPalet); set => SetNumberDraft(nameof(DraftCaixesPerPalet), value); }
         public double DraftPreuVendaCaixaValue { get => ToNumberBoxValue(DraftPreuVendaCaixa); set => SetNumberDraft(nameof(DraftPreuVendaCaixa), value); }
@@ -391,32 +491,152 @@ namespace PaletixDesktop.ViewModels
 
         public async Task ImportProductsAsync()
         {
-            var next = Products.Count + 1;
-            var draft = Create(
-                0,
-                $"IMP-{next:000}",
-                "Producte importat",
-                "Importacio manual des del commandbar",
-                FirstLookupValue(ProductTypeOptions),
-                null,
-                FirstLookupValue(SupplierOptions),
-                FirstLookupValue(LocationOptions),
-                1,
-                null,
-                1,
-                3.20m,
-                2.50m,
-                null,
-                null,
-                DateTime.Today);
-            var result = await _productDataService.CreateAsync(draft, Products.ToList());
-            ApplyMutation(result);
-            if (result.Product is not null)
+            await LoadLookupsAsync();
+            PanelMode = ProductPanelMode.None;
+            ValidationMessage = "";
+            ImportValidationMessage = "";
+            ImportProgressText = "";
+            ImportRunsInBackground = true;
+            ImportPreviewRows.Clear();
+            StatusText = "Assistent d'importacio de productes obert.";
+            OnPropertyChanged(nameof(IsAnySidePanelOpen));
+            RaiseImportProperties();
+        }
+
+        public void CancelImportPanel()
+        {
+            ImportValidationMessage = "";
+            ImportProgressText = "";
+            StatusText = "Importacio cancelada.";
+        }
+
+        public void ParseImportPreview()
+        {
+            try
             {
-                SelectSingle(Products.First(product => product.Id == result.Product.Id));
+                ImportPreviewRows.Clear();
+                ImportValidationMessage = "";
+
+                if (string.IsNullOrWhiteSpace(ImportRawText))
+                {
+                    ImportValidationMessage = "Carrega un fitxer o enganxa dades CSV/JSON abans de continuar.";
+                    StatusText = "No hi ha dades per previsualitzar.";
+                    RaiseImportProperties();
+                    return;
+                }
+
+                var format = string.Equals(ImportFormat, "json", StringComparison.OrdinalIgnoreCase)
+                    ? BulkImportFormat.Json
+                    : BulkImportFormat.Csv;
+                var parsed = BulkImportParser.Parse(
+                    ImportRawText,
+                    format,
+                    CreateImportProductDraft,
+                    CreateImportColumns());
+
+                foreach (var row in parsed.Rows)
+                {
+                    var errors = row.Errors.ToList();
+                    ValidateImportedProduct(row.Item, errors);
+                    ImportPreviewRows.Add(new ProductImportPreviewRow(row.RowNumber, row.Item, errors));
+                }
+
+                StatusText = ImportPreviewRows.Count == 0
+                    ? "No hi ha files per importar."
+                    : $"Previsualitzacio preparada: {ValidImportCount} valides, {InvalidImportCount} amb errors.";
+            }
+            catch (Exception ex)
+            {
+                ImportValidationMessage = ex.Message;
+                StatusText = "No s'ha pogut llegir la importacio.";
             }
 
-            StatusText = result.Message;
+            RaiseImportProperties();
+        }
+
+        public async Task<bool> ApplyImportAsync()
+        {
+            if (ImportPreviewRows.Count == 0)
+            {
+                ParseImportPreview();
+            }
+
+            var validRows = ImportPreviewRows.Where(row => row.IsValid).ToList();
+            if (validRows.Count == 0)
+            {
+                ImportValidationMessage = "No hi ha cap fila valida per importar.";
+                return false;
+            }
+
+            IsImporting = true;
+            _importJob.Start("Importacio de productes", validRows.Count);
+            _notifications.Notify(
+                "Importacio de productes iniciada",
+                $"S'estan important {validRows.Count} producte(s). Pots pausar o cancel.lar l'operacio des de la barra superior.",
+                AppNotificationKind.Info);
+
+            var current = Products.ToList();
+            ProductMutationResult? lastResult = null;
+            var processed = 0;
+
+            try
+            {
+                foreach (var row in validRows)
+                {
+                    await _importJob.WaitIfPausedAsync();
+                    ImportProgressText = $"Important {processed + 1} de {validRows.Count}...";
+                    _importJob.Report(processed, ImportProgressText);
+                    lastResult = await _productDataService.CreateAsync(row.Product, current);
+                    current = lastResult.Products.ToList();
+                    processed++;
+                    _importJob.Report(processed, $"Importats {processed} de {validRows.Count} producte(s).");
+                }
+
+                if (lastResult is not null)
+                {
+                    ApplyMutation(lastResult);
+                }
+
+                ImportProgressText = "";
+                StatusText = $"Importacio completada: {validRows.Count} producte(s) processats.";
+                _importJob.Complete(StatusText);
+                _notifications.Notify("Importacio completada", StatusText, AppNotificationKind.Success);
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                if (lastResult is not null)
+                {
+                    ApplyMutation(lastResult);
+                }
+
+                ImportProgressText = "";
+                StatusText = processed == 0
+                    ? "Importacio cancel.lada sense crear productes."
+                    : $"Importacio cancel.lada: {processed} de {validRows.Count} producte(s) processats.";
+                ImportValidationMessage = StatusText;
+                _importJob.Fail(StatusText);
+                _notifications.Notify("Importacio cancel.lada", StatusText, AppNotificationKind.Warning);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                if (lastResult is not null)
+                {
+                    ApplyMutation(lastResult);
+                }
+
+                ImportProgressText = "";
+                ImportValidationMessage = ex.Message;
+                StatusText = $"Importacio interrompuda: {ex.Message}";
+                _importJob.Fail(StatusText);
+                _notifications.Notify("Error en la importacio", StatusText, AppNotificationKind.Warning);
+                return false;
+            }
+            finally
+            {
+                IsImporting = false;
+            }
         }
 
         private void ApplyMutation(ProductMutationResult result, IReadOnlyList<int>? preserveSelectionIds = null)
@@ -729,6 +949,144 @@ namespace PaletixDesktop.ViewModels
             OnPropertyChanged(nameof(PanelSubtitle));
         }
 
+        private void RaiseImportProperties()
+        {
+            OnPropertyChanged(nameof(HasImportRawText));
+            OnPropertyChanged(nameof(ValidImportCount));
+            OnPropertyChanged(nameof(InvalidImportCount));
+            OnPropertyChanged(nameof(CanApplyImport));
+            OnPropertyChanged(nameof(CanPreviewImport));
+            OnPropertyChanged(nameof(CanGoToImportStep));
+        }
+
+        private static IReadOnlyList<BulkImportColumn<ProductRecord>> CreateImportColumns()
+        {
+            return new[]
+            {
+                new BulkImportColumn<ProductRecord>("Referencia", "Referencia", false, (product, value) => product.Referencia = value.Trim(), "referencia", "sku", "ref"),
+                new BulkImportColumn<ProductRecord>("Nom", "Nom", true, (product, value) => product.Nom = value.Trim(), "name", "producte"),
+                new BulkImportColumn<ProductRecord>("Descripcio", "Descripcio", false, (product, value) => product.Descripcio = value.Trim(), "descripcio", "descripcion", "description"),
+                new BulkImportColumn<ProductRecord>("IdTipus", "IdTipus", true, (product, value) => product.IdTipus = ParsePositiveInt(value, "ha de ser un ID de tipus valid"), "id_tipus", "idtipusproducte", "tipus"),
+                new BulkImportColumn<ProductRecord>("VolumMl", "VolumMl", false, (product, value) => product.VolumMl = ParseNullableDecimalImport(value), "volum_ml", "volum"),
+                new BulkImportColumn<ProductRecord>("IdProveidor", "IdProveidor", true, (product, value) => product.IdProveidor = ParsePositiveInt(value, "ha de ser un ID de proveidor valid"), "id_proveidor", "proveidor"),
+                new BulkImportColumn<ProductRecord>("IdUbicacio", "IdUbicacio", true, (product, value) => product.IdUbicacio = ParsePositiveInt(value, "ha de ser un ID d'ubicacio valid"), "id_ubicacio", "ubicacio"),
+                new BulkImportColumn<ProductRecord>("CaixesPerPalet", "CaixesPerPalet", true, (product, value) => product.CaixesPerPalet = ParsePositiveInt(value, "ha de ser igual o superior a 1"), "caixes_per_palet", "caixespalet"),
+                new BulkImportColumn<ProductRecord>("ImatgeUrl", "ImatgeUrl", false, (product, value) => product.ImatgeUrl = value.Trim(), "imatge_url", "urlimatge", "imageurl"),
+                new BulkImportColumn<ProductRecord>("Actiu", "Actiu", false, (product, value) => product.Actiu = ParseActive(value), "estat", "activo"),
+                new BulkImportColumn<ProductRecord>("PreuVendaCaixa", "PreuVendaCaixa", true, (product, value) => product.PreuVendaCaixa = ParseDecimalImport(value, "ha de ser numeric"), "preu_venda_caixa", "preu", "preuvenda"),
+                new BulkImportColumn<ProductRecord>("CostPerCaixa", "CostPerCaixa", true, (product, value) => product.CostPerCaixa = ParseDecimalImport(value, "ha de ser numeric"), "cost_per_caixa", "cost"),
+                new BulkImportColumn<ProductRecord>("EstabilitatAlPalet", "EstabilitatAlPalet", false, (product, value) => product.EstabilitatAlPalet = ParseNonNegativeNullableInt(value), "estabilitat_al_palet", "estabilitat"),
+                new BulkImportColumn<ProductRecord>("PesKg", "PesKg", false, (product, value) => product.PesKg = ParseNullableDecimalImport(value), "pes_kg", "pes")
+            };
+        }
+
+        private ProductRecord CreateImportProductDraft()
+        {
+            return Create(
+                0,
+                null,
+                "",
+                null,
+                FirstLookupValue(ProductTypeOptions),
+                null,
+                FirstLookupValue(SupplierOptions),
+                FirstLookupValue(LocationOptions),
+                1,
+                null,
+                1,
+                0m,
+                0m,
+                null,
+                null,
+                DateTime.Today);
+        }
+
+        private void ValidateImportedProduct(ProductRecord product, ICollection<string> errors)
+        {
+            Require(product.Nom, "Nom", errors);
+            MaxLength(product.Referencia ?? "", 50, "Referencia", errors);
+            MaxLength(product.Nom, 150, "Nom", errors);
+            MaxLength(product.Descripcio ?? "", 300, "Descripcio", errors);
+            MaxLength(product.ImatgeUrl ?? "", 2048, "URL de la imatge", errors);
+
+            if (!string.IsNullOrWhiteSpace(product.Referencia) && !InputValidation.IsValidReference(product.Referencia))
+            {
+                errors.Add("Referencia te un format invalid.");
+            }
+
+            ValidateRequiredLookup(product.IdTipus.ToString(CultureInfo.InvariantCulture), ProductTypeOptions, "Tipus de producte", errors);
+            ValidateRequiredLookup(product.IdProveidor.ToString(CultureInfo.InvariantCulture), SupplierOptions, "Proveidor", errors);
+            ValidateRequiredLookup(product.IdUbicacio.ToString(CultureInfo.InvariantCulture), LocationOptions, "Ubicacio", errors);
+
+            if (product.CaixesPerPalet < 1)
+            {
+                errors.Add("Caixes per palet ha de ser igual o superior a 1.");
+            }
+
+            if (product.PreuVendaCaixa < 0 || product.CostPerCaixa < 0)
+            {
+                errors.Add("Preu i cost no poden ser negatius.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(product.ImatgeUrl) && !InputValidation.IsValidImageUrl(product.ImatgeUrl))
+            {
+                errors.Add("URL de la imatge ha de ser http/https valida.");
+            }
+        }
+
+        private static int ParsePositiveInt(string value, string message)
+        {
+            if (!int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) || parsed < 1)
+            {
+                throw new FormatException(message);
+            }
+
+            return parsed;
+        }
+
+        private static int? ParseNonNegativeNullableInt(string value)
+        {
+            if (!int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) || parsed < 0)
+            {
+                throw new FormatException("ha de ser un enter igual o superior a 0");
+            }
+
+            return parsed;
+        }
+
+        private static decimal ParseDecimalImport(string value, string message)
+        {
+            if (!InputValidation.TryParseDecimal(value, out var parsed) || parsed < 0)
+            {
+                throw new FormatException(message);
+            }
+
+            return parsed;
+        }
+
+        private static decimal? ParseNullableDecimalImport(string value)
+        {
+            return InputValidation.TryParseDecimal(value, out var parsed)
+                ? parsed
+                : throw new FormatException("ha de ser numeric");
+        }
+
+        private static sbyte ParseActive(string value)
+        {
+            var normalized = value.Trim().ToLowerInvariant();
+            if (normalized is "1" or "true" or "si" or "sí" or "actiu" or "activo")
+            {
+                return 1;
+            }
+
+            if (normalized is "0" or "false" or "no" or "inactiu" or "inactivo")
+            {
+                return 0;
+            }
+
+            throw new FormatException("ha de ser 1/0, si/no o actiu/inactiu");
+        }
+
         private static ProductRecord Create(
             int id,
             string? referencia,
@@ -802,4 +1160,25 @@ namespace PaletixDesktop.ViewModels
             return InputValidation.TryParseDecimal(value, out var result) ? result : null;
         }
     }
+
+    public sealed class ProductImportPreviewRow
+    {
+        public ProductImportPreviewRow(int rowNumber, ProductRecord product, IReadOnlyList<string> errors)
+        {
+            RowNumber = rowNumber;
+            Product = product;
+            Errors = errors;
+        }
+
+        public int RowNumber { get; }
+        public ProductRecord Product { get; }
+        public IReadOnlyList<string> Errors { get; }
+        public bool IsValid => Errors.Count == 0;
+        public string StatusText => IsValid ? "Preparat" : "Error";
+        public string ErrorText => string.Join(" ", Errors);
+        public string ReferenciaText => Product.Referencia ?? "";
+        public string NomText => Product.Nom;
+    }
+
+    public sealed record ProductImportFormatOption(string Value, string Label);
 }

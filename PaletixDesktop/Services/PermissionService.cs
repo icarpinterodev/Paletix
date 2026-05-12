@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using PaletixDesktop.Models;
 
 namespace PaletixDesktop.Services
@@ -23,6 +24,11 @@ namespace PaletixDesktop.Services
             if (_currentUser is null)
             {
                 return false;
+            }
+
+            if (_currentUser.Permissions.Count > 0)
+            {
+                return _currentUser.Permissions.Contains(PermissionKey(feature, action), StringComparer.OrdinalIgnoreCase);
             }
 
             var role = Normalize(_currentUser.RoleName);
@@ -85,6 +91,30 @@ namespace PaletixDesktop.Services
         private static string Normalize(string value)
         {
             return value.Trim().ToLowerInvariant();
+        }
+
+        private static string PermissionKey(AppFeature feature, PermissionAction action)
+        {
+            return $"{FeatureKey(feature)}.{action.ToString().ToLowerInvariant()}";
+        }
+
+        private static string FeatureKey(AppFeature feature)
+        {
+            return feature switch
+            {
+                AppFeature.Dashboard => "dashboard",
+                AppFeature.Operations => "operations",
+                AppFeature.Warehouse => "warehouse",
+                AppFeature.Catalog => "catalog",
+                AppFeature.Clients => "clients",
+                AppFeature.Suppliers => "suppliers",
+                AppFeature.Fleet => "fleet",
+                AppFeature.Billing => "billing",
+                AppFeature.Gamification => "gamification",
+                AppFeature.Users => "users",
+                AppFeature.Administration => "administration",
+                _ => feature.ToString().ToLowerInvariant()
+            };
         }
     }
 }

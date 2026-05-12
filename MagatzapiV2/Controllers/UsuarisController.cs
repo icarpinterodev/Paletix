@@ -6,6 +6,7 @@ using MagatzapiV2.Dtos;
 using SharedContracts.Dtos;
 using MagatzapiV2.Infrastructure;
 using MagatzapiV2.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace MagatzapiV2.Controllers;
 
@@ -15,6 +16,7 @@ namespace MagatzapiV2.Controllers;
 public class UsuarisController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly PasswordHasher<Usuaris> _passwordHasher = new();
 
     public UsuarisController(AppDbContext context)
     {
@@ -53,7 +55,13 @@ public class UsuarisController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UsuarisReadDto>> PostUsuaris(UsuarisRequestDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 8)
+        {
+            return BadRequest("La contrasenya ha de tenir com a minim 8 caracters.");
+        }
+
         var entity = EntityMappings.ToEntity(dto);
+        entity.Password = _passwordHasher.HashPassword(entity, dto.Password);
         _context.Usuaris.Add(entity);
 
         try
@@ -77,7 +85,20 @@ public class UsuarisController : ControllerBase
             return NotFound();
         }
 
+        var previousPassword = entity.Password;
         EntityMappings.ApplyUpdate(dto, entity);
+        if (string.IsNullOrWhiteSpace(dto.Password))
+        {
+            entity.Password = previousPassword;
+        }
+        else if (dto.Password.Length < 8)
+        {
+            return BadRequest("La contrasenya ha de tenir com a minim 8 caracters.");
+        }
+        else
+        {
+            entity.Password = _passwordHasher.HashPassword(entity, dto.Password);
+        }
 
         try
         {

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PaletixDesktop.Views.Controls.ProductSelectionGrid"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBox
+            PlaceholderText="Cercar producte per id, referencia o nom"
+            Text="{Binding ProductPickerSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        <GridView
+            Grid.Row="1"
+            Padding="0"
+            Background="Transparent"
+            IsItemClickEnabled="False"
+            ItemsSource="{Binding ProductPickerItems}"
+            SelectionMode="None">
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid ItemWidth="222" ItemHeight="270" MaximumRowsOrColumns="3" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+            <GridView.ItemTemplate>
+                <DataTemplate>
+                    <Border Width="214" Height="258" Padding="12" Margin="0,0,8,8" Style="{StaticResource ShellCardBorderStyle}">
+                        <Grid RowSpacing="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="82" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Border Background="{StaticResource AppAccentSoftBrush}" BorderBrush="{StaticResource AppStrokeBrush}" BorderThickness="1" CornerRadius="6">
+                                <Grid>
+                                    <Image Source="{Binding ImageUrl}" Stretch="UniformToFill" Visibility="{Binding HasImage, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <FontIcon HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="34" Foreground="{StaticResource AppSecondaryTextBrush}" Glyph="&#xEB9F;" Visibility="{Binding HasImage, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+                                </Grid>
+                            </Border>
+                            <StackPanel Grid.Row="1" Spacing="4">
+                                <TextBlock Foreground="{StaticResource AppSecondaryTextBrush}" Text="{Binding Id}" />
+                                <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource AppPrimaryTextBrush}" Text="{Binding Label}" TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                            <Grid Grid.Row="2" ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox Header="Palets" Minimum="0" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding PaletsValue, Mode=TwoWay}" />
+                                <NumberBox Grid.Column="1" Header="Caixes" Minimum="1" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{Binding CaixesValue, Mode=TwoWay}" />
+                            </Grid>
+                            <CheckBox Grid.Row="3" Content="Incloure a la comanda" IsChecked="{Binding IsSelected, Mode=TwoWay}" Tag="{Binding}" Checked="ProductCheckBox_Changed" Unchecked="ProductCheckBox_Changed" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+    </Grid>
+</UserControl>

@@ -28,13 +28,16 @@ namespace PaletixDesktop.Services
                 Sections = new[]
                 {
                     Section("operations-orders", "Comandes", "Creacio, estat i seguiment de comandes", "\uE8FD", AppFeature.Operations,
-                        Command("Nova", "\uE710", PermissionAction.Create),
-                        Command("Assignar", "\uE8D4", PermissionAction.Assign),
-                        Command("Validar", "\uE73E", PermissionAction.Approve)),
+                        Command("Nova comanda", "\uE710", PermissionAction.Create, "orders.create"),
+                        Command("Actualitzar", "\uE72C", PermissionAction.View, "orders.refresh"),
+                        Command("Editar", "\uE70F", PermissionAction.Edit, "orders.edit"),
+                        Command("Eliminar", "\uE74D", PermissionAction.Delete, "orders.delete")),
                     Section("operations-picking", "Preparacio", "Picking, verificacio i incidencies", "\uE7C3", AppFeature.Operations,
-                        Command("Iniciar", "\uE768", PermissionAction.Edit),
-                        Command("Pausar", "\uE769", PermissionAction.Edit),
-                        Command("Incidencia", "\uE7BA", PermissionAction.Create)),
+                        Command("Actualitzar", "\uE72C", PermissionAction.View, "picking.refresh"),
+                        Command("Iniciar", "\uE768", PermissionAction.Edit, "picking.start"),
+                        Command("Pausar", "\uE769", PermissionAction.Edit, "picking.pause"),
+                        Command("Preparat", "\uE73E", PermissionAction.Edit, "picking.prepared"),
+                        Command("Incidencia", "\uE7BA", PermissionAction.Create, "picking.incident")),
                     Section("operations-routes", "Rutes", "Assignacio de vehicle, xofer i entregues", "\uE707", AppFeature.Operations,
                         Command("Planificar", "\uE8A5", PermissionAction.Assign),
                         Command("Optimitzar", "\uE74E", PermissionAction.Edit))
@@ -159,8 +162,10 @@ namespace PaletixDesktop.Services
                 Sections = new[]
                 {
                     Section("admin-users", "Usuaris i rols", "Treballadors, carrecs i permisos", "\uE7EF", AppFeature.Users,
-                        Command("Nou usuari", "\uE710", PermissionAction.Create),
-                        Command("Permisos", "\uE713", PermissionAction.Edit)),
+                        Command("Nou", "\uE710", PermissionAction.Create, "admin-users.create"),
+                        Command("Actualitzar", "\uE72C", PermissionAction.View, "admin-users.refresh"),
+                        Command("Editar", "\uE70F", PermissionAction.Edit, "admin-users.edit"),
+                        Command("Eliminar", "\uE74D", PermissionAction.Delete, "admin-users.delete")),
                     Section("admin-sync", "API i sincronitzacio", "Configuracio, SQLite i cua offline", "\uE895", AppFeature.Administration,
                         Command("Provar API", "\uE9D9", PermissionAction.View),
                         Command("Sincronitzar", "\uE895", PermissionAction.Sync))

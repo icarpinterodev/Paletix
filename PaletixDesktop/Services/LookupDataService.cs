@@ -15,12 +15,20 @@ namespace PaletixDesktop.Services
         private const string SuppliersCacheKey = "lookups/suppliers/v1";
         private const string LocationsCacheKey = "lookups/locations/v1";
         private const string LotsCacheKey = "lookups/lots/v1";
+        private const string ClientsCacheKey = "lookups/clients/v1";
+        private const string UsersCacheKey = "lookups/users/v1";
+        private const string VehiclesCacheKey = "lookups/vehicles/v1";
+        private const string StatesCacheKey = "lookups/states/v1";
 
         private readonly EntityApiService<TipusProducteReadDto, TipusProducteRequestDto> _productTypes;
         private readonly EntityApiService<ProductesReadDto, ProductesRequestDto> _products;
         private readonly EntityApiService<ProveidorsReadDto, ProveidorsRequestDto> _suppliers;
         private readonly EntityApiService<UbicacionsReadDto, UbicacionsRequestDto> _locations;
         private readonly EntityApiService<ProveidorsLotReadDto, ProveidorsLotRequestDto> _lots;
+        private readonly EntityApiService<ClientsReadDto, ClientsRequestDto> _clients;
+        private readonly EntityApiService<UsuarisReadDto, UsuarisRequestDto> _users;
+        private readonly EntityApiService<VehiclesReadDto, VehiclesRequestDto> _vehicles;
+        private readonly EntityApiService<EstatsReadDto, EstatsRequestDto> _states;
         private readonly LocalDatabase? _localDatabase;
 
         public LookupDataService(ApiClient apiClient, LocalDatabase? localDatabase = null)
@@ -30,6 +38,10 @@ namespace PaletixDesktop.Services
             _suppliers = new EntityApiService<ProveidorsReadDto, ProveidorsRequestDto>(apiClient, "api/Proveidors");
             _locations = new EntityApiService<UbicacionsReadDto, UbicacionsRequestDto>(apiClient, "api/Ubicacions");
             _lots = new EntityApiService<ProveidorsLotReadDto, ProveidorsLotRequestDto>(apiClient, "api/ProveidorsLots");
+            _clients = new EntityApiService<ClientsReadDto, ClientsRequestDto>(apiClient, "api/Clients");
+            _users = new EntityApiService<UsuarisReadDto, UsuarisRequestDto>(apiClient, "api/Usuaris");
+            _vehicles = new EntityApiService<VehiclesReadDto, VehiclesRequestDto>(apiClient, "api/Vehicles");
+            _states = new EntityApiService<EstatsReadDto, EstatsRequestDto>(apiClient, "api/Estats");
             _localDatabase = localDatabase;
         }
 
@@ -156,6 +168,78 @@ namespace PaletixDesktop.Services
                 }
 
                 return DefaultLocations();
+            }
+        }
+
+        public async Task<IReadOnlyList<LookupOption>> GetClientsAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var items = await LoadAllAsync(_clients, item => new LookupOption
+                {
+                    Id = item.Id,
+                    Label = item.NomEmpresa
+                }, cancellationToken);
+                await SaveCacheAsync(ClientsCacheKey, items, cancellationToken);
+                return items;
+            }
+            catch (Exception)
+            {
+                return await ReadCacheAsync(ClientsCacheKey, cancellationToken) ?? new List<LookupOption>();
+            }
+        }
+
+        public async Task<IReadOnlyList<LookupOption>> GetUsersAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var items = await LoadAllAsync(_users, item => new LookupOption
+                {
+                    Id = item.Id,
+                    Label = $"{item.Nom} {item.Cognoms}".Trim()
+                }, cancellationToken);
+                await SaveCacheAsync(UsersCacheKey, items, cancellationToken);
+                return items;
+            }
+            catch (Exception)
+            {
+                return await ReadCacheAsync(UsersCacheKey, cancellationToken) ?? new List<LookupOption>();
+            }
+        }
+
+        public async Task<IReadOnlyList<LookupOption>> GetVehiclesAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var items = await LoadAllAsync(_vehicles, item => new LookupOption
+                {
+                    Id = item.Id,
+                    Label = $"{item.Matricula} · {item.Marca} {item.Model}"
+                }, cancellationToken);
+                await SaveCacheAsync(VehiclesCacheKey, items, cancellationToken);
+                return items;
+            }
+            catch (Exception)
+            {
+                return await ReadCacheAsync(VehiclesCacheKey, cancellationToken) ?? new List<LookupOption>();
+            }
+        }
+
+        public async Task<IReadOnlyList<LookupOption>> GetStatesAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var items = await LoadAllAsync(_states, item => new LookupOption
+                {
+                    Id = item.Id,
+                    Label = string.IsNullOrWhiteSpace(item.Descripcio) ? item.Codi : $"{item.Codi} · {item.Descripcio}"
+                }, cancellationToken);
+                await SaveCacheAsync(StatesCacheKey, items, cancellationToken);
+                return items;
+            }
+            catch (Exception)
+            {
+                return await ReadCacheAsync(StatesCacheKey, cancellationToken) ?? new List<LookupOption>();
             }
         }
 
